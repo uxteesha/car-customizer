@@ -3,102 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Car Color Changer</title>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    <title>Simple Car Viewer</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        body, html {
             margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
         }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
         model-viewer {
             width: 100%;
-            height: 500px;
-            background-color: #f8f8f8;
-            border-radius: 8px;
-        }
-
-        .color-controls {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .color-controls h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .color-btn {
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            padding: 10px 20px;
-            margin: 0 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .color-btn:hover {
-            border-color: #007bff;
-        }
-
-        .color-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
+            height: 100%;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <model-viewer
-            id="car-model"
-            src="./astra sedan.glb"
-            alt="3D Car Model"
-            camera-controls
-            ar
-            auto-rotate>
-        </model-viewer>
 
-        <div class="color-controls">
-            <h3>Choose Color</h3>
-            <button class="color-btn active" data-model="./astra sedan.glb">Astra</button>
-            <button class="color-btn" data-model="./blue sedan.glb">Blue</button>
-            <button class="color-btn" data-model="./red sedan.glb">Red</button>
-        </div>
-    </div>
+    <model-viewer
+        src="red sedan.glb"
+        alt="A 3D model of a car"
+        ar
+        ar-modes="webxr scene-viewer"
+        camera-controls
+        shadow-intensity="1"
+    >
+    </model-viewer>
 
-    <script>
-        const modelViewer = document.getElementById('car-model');
-        const colorButtons = document.querySelectorAll('.color-btn');
-
-        colorButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Remove active class from all buttons
-                colorButtons.forEach(btn => btn.classList.remove('active'));
-                
-                // Add active class to clicked button
-                this.classList.add('active');
-                
-                // Change the car model
-                const newModel = this.dataset.model;
-                modelViewer.src = newModel;
-                
-                console.log('Car color changed to:', this.textContent);
-            });
-        });
-    </script>
 </body>
 </html>
