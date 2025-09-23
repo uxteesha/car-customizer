@@ -18,11 +18,16 @@
     </model-viewer>
 
     <div style="margin: 20px 0;">
-        <button onclick="changeModel('https://modelviewer.dev/shared-assets/models/Astronaut.glb')">Test Model 1</button>
-        <button onclick="changeModel('https://modelviewer.dev/shared-assets/models/shishkebab.glb')">Test Model 2</button>
-        <button onclick="changeModel('astra sedan.glb')">Astra Car</button>
+        <button onclick="changeModel('astra sedan.glb')">Astra Car (currently shows red)</button>
         <button onclick="changeModel('blue sedan.glb')">Blue Car</button>
         <button onclick="changeModel('red sedan.glb')">Red Car</button>
+    </div>
+
+    <div style="margin: 10px 0;">
+        <strong>File Check:</strong><br>
+        <button onclick="checkFile('astra sedan.glb')">Check if astra sedan.glb exists</button><br>
+        <button onclick="checkFile('blue sedan.glb')">Check if blue sedan.glb exists</button><br>
+        <button onclick="checkFile('red sedan.glb')">Check if red sedan.glb exists</button>
     </div>
 
     <div id="info" style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
@@ -39,6 +44,23 @@
             viewer.src = modelPath;
         }
 
+        function checkFile(filename) {
+            fetch(filename)
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ File exists:', filename, 'Size:', response.headers.get('content-length'), 'bytes');
+                        info.textContent = '✅ ' + filename + ' exists and is accessible';
+                    } else {
+                        console.error('❌ File not found:', filename, 'Status:', response.status);
+                        info.textContent = '❌ ' + filename + ' not found (Status: ' + response.status + ')';
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error checking file:', filename, error);
+                    info.textContent = '❌ Error checking ' + filename + ': ' + error.message;
+                });
+        }
+
         viewer.addEventListener('load', () => {
             console.log('✅ Model loaded:', viewer.src);
             info.textContent = 'Loaded: ' + viewer.src;
@@ -49,9 +71,9 @@
             info.textContent = 'ERROR loading: ' + viewer.src;
         });
 
-        // Initial load
+        // Check initial model
         viewer.addEventListener('load', () => {
-            info.textContent = 'Loaded: ' + viewer.src;
+            info.textContent = 'Initial model loaded: ' + viewer.src;
         }, { once: true });
     </script>
 </body>
