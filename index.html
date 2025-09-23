@@ -27,9 +27,9 @@
             background-color: var(--background-color);
         }
         
-        .main-container {
-            height: 100%;
+        .viewer-container {
             width: 100%;
+            height: 100%;
             position: relative;
         }
 
@@ -55,26 +55,26 @@
             gap: 20px;
         }
         
-        .control-group {
+        .controls-group {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
         }
 
-        .control-group h4 {
+        .controls-group h4 {
             margin: 0;
             font-size: 16px;
             color: #444;
         }
 
-        .button-group {
+        .button-list {
             display: flex;
             gap: 10px;
         }
 
-        /* Style for the color buttons */
-        .color-button {
+        /* Color button styling */
+        .color-selector {
             width: var(--button-size);
             height: var(--button-size);
             border: var(--button-border);
@@ -84,7 +84,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .color-button:hover {
+        .color-selector:hover {
             transform: scale(1.1);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
@@ -92,10 +92,10 @@
 </head>
 <body>
 
-    <div class="main-container">
+    <div class="viewer-container">
         <model-viewer
             id="car-model"
-            src="https://modelviewer.dev/shared-assets/models/fiat_500.glb"
+            src="red sedan.glb"
             alt="A 3D model of a car"
             ar ar-modes="webxr scene-viewer"
             shadow-intensity="1"
@@ -104,29 +104,35 @@
         >
         </model-viewer>
 
-        <div class="control-panel">
-            <div class="control-group">
-                <h4>Color</h4>
-                <div class="button-group">
-                    <button class="color-button" data-model="https://modelviewer.dev/shared-assets/models/fiat_500.glb" style="background-color: #ff0000;"></button>
-                    <button class="color-button" data-model="https://modelviewer.dev/shared-assets/models/Ford_Escort_MK1_Rally_v2.glb" style="background-color: #0000ff;"></button>
-                    <button class="color-button" data-model="https://modelviewer.dev/shared-assets/models/Acura_NSX.glb" style="background-color: #cccccc;"></button>
+        <div class="controls-panel">
+            <div class="controls-group">
+                <h4>Body Color</h4>
+                <div class="button-list">
+                    <button class="color-selector" data-model="red sedan.glb" style="background-color: #ff0000;"></button>
+                    <button class="color-selector" data-model="blue sedan.glb" style="background-color: #0000ff;"></button>
+                    <button class="color-selector" data-model="astra sedan.glb" style="background-color: #cccccc;"></button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Get the model viewer element from the DOM
         const modelViewer = document.getElementById('car-model');
 
-        document.querySelectorAll('.color-button').forEach(button => {
+        // Add a click event listener to each color button
+        document.querySelectorAll('.color-selector').forEach(button => {
             button.addEventListener('click', () => {
+                // Get the file name from the button's data attribute
                 const modelFileName = button.getAttribute('data-model');
+
+                // Update the model viewer's source to the new file
                 if (modelFileName) {
                     modelViewer.src = modelFileName;
                 }
             });
         });
     </script>
+
 </body>
 </html>
