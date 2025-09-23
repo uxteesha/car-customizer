@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Working Car Customizer</title>
+    <title>3D Car Customizer</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
+        /* Basic styling for the body and container */
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             font-family: Arial, sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* Prevents scrollbars */
         }
 
         .container {
@@ -24,12 +25,14 @@
             position: relative;
         }
 
+        /* Style the model viewer element */
         model-viewer {
             width: 100%;
             height: 100%;
-            background-color: #f0f0f0;
+            background-color: #f0f0f0; /* Light gray background */
         }
 
+        /* Styling for the customization controls */
         .controls {
             position: absolute;
             bottom: 20px;
@@ -63,7 +66,8 @@
             gap: 10px;
         }
 
-        .color-button {
+        /* Styling for the buttons */
+        .color-button, .wheels-button {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -73,55 +77,134 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .color-button:hover {
+        /* Add hover effect to the buttons */
+        .color-button:hover, .wheels-button:hover {
             transform: scale(1.1);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
+
+        /* Specific colors for the color buttons */
+        .color-button[data-color="#ff0000"] { background-color: #ff0000; }
+        .color-button[data-color="#0000ff"] { background-color: #0000ff; }
+        .color-button[data-color="#cccccc"] { background-color: #cccccc; }
+
+        /* Images for the wheels buttons - you would need to create these or use your own */
+        .wheels-button[data-wheels="style1"] { background: url('wheels.jpg') no-repeat center center/cover; }
+        .wheels-button[data-wheels="style2"] { background: url('https://via.placeholder.com/40/008000/FFFFFF?text=W2') no-repeat center center/cover; }
+        .wheels-button[data-wheels="style3"] { background: url('https://via.placeholder.com/40/FF0000/FFFFFF?text=W3') no-repeat center center/cover; }
+        
+        /* New styling for the AR floor detection prompt */
+        #floor-prompt {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2rem;
+            display: none; /* Initially hidden */
+            z-index: 10;
+        }
+        
     </style>
 </head>
 <body>
 
     <div class="container">
-        <model-viewer
+        <model-viewer 
             id="car-model"
-            src="https://cdn.glitch.me/06385317-2101-44de-a89c-4f7f6f555c88/fiat-500.glb"
+            src="astra sedan.glb" 
             alt="A 3D model of a car"
-            ar ar-modes="webxr scene-viewer"
+            ar 
+            ar-modes="webxr scene-viewer"
             shadow-intensity="1"
-            camera-controls
+            camera-controls 
             touch-action="pan-y"
             environment-image="legacy"
         >
         </model-viewer>
+        
+        <div id="floor-prompt">
+            <p>Point your camera at the floor to place the car.</p>
+        </div>
 
         <div class="controls">
             <div class="control-group">
                 <h4>Color</h4>
                 <div class="button-group">
-                    <button class="color-button" data-color="#ff0000" style="background-color: #ff0000;"></button>
-                    <button class="color-button" data-color="#0000ff" style="background-color: #0000ff;"></button>
-                    <button class="color-button" data-color="#cccccc" style="background-color: #cccccc;"></button>
+                    <button class="color-button" data-color="#ff0000" data-model="astra sedan"></button>
+                    <button class="color-button" data-color="#0000ff" data-model="blue sedan"></button>
+                    <button class="color-button" data-color="#cccccc" data-model="grey sedan"></button>
                 </div>
             </div>
+
+            <!-- <div class="control-group">
+                <h4>Wheels</h4>
+                <div class="button-group">
+                    <button class="wheels-button" data-wheels="style1"></button>
+                    <button class="wheels-button" data-wheels="style2"></button>
+                    <button class="wheels-button" data-wheels="style3"></button>
+                </div>
+            </div> -->
         </div>
     </div>
 
     <script>
+        // Get the model viewer element
         const modelViewer = document.getElementById('car-model');
-        const CAR_BODY_MATERIAL_NAME = 'Material.001';
+        // NEW: Get the floor prompt element
+        const floorPrompt = document.getElementById('floor-prompt');
 
-        modelViewer.addEventListener('load', () => {
-            const carBodyMaterial = modelViewer.model.materials.find(material => material.name === CAR_BODY_MATERIAL_NAME);
+        // NEW: Add a listener for the AR session to start
+        modelViewer.addEventListener('ar-status', (event) => {
+            if (event.detail.status === 'session-started') {
+                floorPrompt.style.display = 'block'; // Show the prompt
+            } else if (event.detail.status === 'session-ended') {
+                floorPrompt.style.display = 'none'; // Hide the prompt
+            }
+        });
 
-            document.querySelectorAll('.color-button').forEach(button => {
-                button.addEventListener('click', () => {
-                    const newColor = button.getAttribute('data-color');
-                    if (carBodyMaterial) {
-                        carBodyMaterial.pbrMetallicRoughness.setBaseColorFactor(newColor);
-                    }
-                });
+        // The 'ar-hit-test-result' event is fired when a surface is detected.
+        // We'll use a simple approach: if a result is found, hide the prompt.
+        // For more complex interactions, you would check the event details.
+        modelViewer.addEventListener('ar-hit-test-result', (event) => {
+            if (event.detail.hit) {
+                floorPrompt.style.display = 'none';
+            }
+        });
+        
+        document.querySelectorAll('.color-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Get the file name from the button's data attribute
+                const modelFileName = button.getAttribute('data-model');
+        
+                // Construct the new source path and update the model viewer's src attribute
+                if (modelFileName) {
+                    modelViewer.src = `${modelFileName}.glb`;
+                    console.log(`Switched to model: ${modelFileName}.glb`);
+                }
             });
         });
+        
+        // Handle color changes
+        document.querySelectorAll('.color-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const color = button.getAttribute('data-color');
+                console.log(`Color changed to: ${color}`);
+            });
+        });
+
+        // Handle wheels changes
+        document.querySelectorAll('.wheels-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const wheelStyle = button.getAttribute('data-wheels');
+                console.log(`Wheels style changed to: ${wheelStyle}`);
+            });
+        });
+
     </script>
 </body>
 </html>
