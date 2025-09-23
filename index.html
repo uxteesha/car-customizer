@@ -3,119 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Car Customizer</title>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <title>3D Car Color Changer</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
+        body {
             font-family: Arial, sans-serif;
-            overflow: hidden;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
         }
 
         .container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         model-viewer {
             width: 100%;
-            height: 100%;
-            background-color: #f0f0f0;
+            height: 500px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
         }
 
-        .controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 10px;
-            display: flex;
-            gap: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .controls h4 {
-            margin: 0;
-            font-size: 14px;
-            color: #333;
+        .color-controls {
+            margin-top: 20px;
             text-align: center;
         }
 
-        .controls .control-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
+        .color-controls h3 {
+            margin-bottom: 15px;
+            color: #333;
         }
 
-        .controls .button-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .color-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid #fff;
+        .color-btn {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            padding: 10px 20px;
+            margin: 0 5px;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+            transition: all 0.3s ease;
         }
 
-        .color-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        .color-btn:hover {
+            border-color: #007bff;
+        }
+
+        .color-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
         <model-viewer
             id="car-model"
-            src="red sedan.glb"
-            alt="A 3D model of a car"
-            ar ar-modes="webxr scene-viewer"
-            shadow-intensity="1"
+            src="./astra sedan.glb"
+            alt="3D Car Model"
             camera-controls
-            touch-action="pan-y"
-            environment-image="legacy"
-        >
+            ar
+            auto-rotate>
         </model-viewer>
 
-        <div class="controls">
-            <div class="control-group">
-                <h4>Color</h4>
-                <div class="button-group">
-                    <button class="color-button" data-model="red sedan.glb" style="background-color: #ff0000;"></button>
-                    <button class="color-button" data-model="blue sedan.glb" style="background-color: #0000ff;"></button>
-                    <button class="color-button" data-model="astra sedan.glb" style="background-color: #cccccc;"></button>
-                </div>
-            </div>
+        <div class="color-controls">
+            <h3>Choose Color</h3>
+            <button class="color-btn active" data-model="./astra sedan.glb">Astra</button>
+            <button class="color-btn" data-model="./blue sedan.glb">Blue</button>
+            <button class="color-btn" data-model="./red sedan.glb">Red</button>
         </div>
     </div>
 
     <script>
         const modelViewer = document.getElementById('car-model');
+        const colorButtons = document.querySelectorAll('.color-btn');
 
-        document.querySelectorAll('.color-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const modelFileName = button.getAttribute('data-model');
-                if (modelFileName) {
-                    modelViewer.src = modelFileName;
-                    console.log(`Switched to model: ${modelFileName}`);
-                }
+        colorButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                colorButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Change the car model
+                const newModel = this.dataset.model;
+                modelViewer.src = newModel;
+                
+                console.log('Car color changed to:', this.textContent);
             });
         });
     </script>
