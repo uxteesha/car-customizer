@@ -11,7 +11,7 @@
             --background-color: #f0f0f0;
             --control-panel-bg: rgba(255, 255, 255, 0.8);
             --control-panel-blur: 10px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             --button-size: 45px;
             --button-border: 3px solid #fff;
         }
@@ -31,17 +31,16 @@
             height: 100%;
             width: 100%;
             position: relative;
-            background-color: var(--background-color);
         }
 
-        /* 3D Model Viewer */
+        /* Model viewer styling */
         model-viewer {
             width: 100%;
             height: 100%;
         }
 
-        /* Control Panel at the bottom */
-        .control-panel {
+        /* Controls panel styling */
+        .controls-panel {
             position: absolute;
             bottom: 20px;
             left: 50%;
@@ -96,7 +95,7 @@
     <div class="main-container">
         <model-viewer
             id="car-model"
-            src="astra sedan.glb"
+            src="https://modelviewer.dev/shared-assets/models/fiat_500.glb"
             alt="A 3D model of a car"
             ar ar-modes="webxr scene-viewer"
             shadow-intensity="1"
@@ -109,25 +108,20 @@
             <div class="control-group">
                 <h4>Color</h4>
                 <div class="button-group">
-                    <button class="color-button" data-model="red sedan.glb" style="background-color: #ff0000;"></button>
-                    <button class="color-button" data-model="blue sedan.glb" style="background-color: #0000ff;"></button>
-                    <button class="color-button" data-model="astra sedan.glb" style="background-color: #cccccc;"></button>
+                    <button class="color-button" data-model="https://modelviewer.dev/shared-assets/models/fiat_500.glb" style="background-color: #ff0000;"></button>
+                    <button class="color-button" data-model="https://modelviewer.dev/shared-assets/models/Ford_Escort_MK1_Rally_v2.glb" style="background-color: #0000ff;"></button>
+                    <button class="color-button" data-model="https://modelviewer.dev/shared-assets/models/Acura_NSX.glb" style="background-color: #cccccc;"></button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Get the model viewer element from the DOM
         const modelViewer = document.getElementById('car-model');
 
-        // Add a click event listener to each color button
         document.querySelectorAll('.color-button').forEach(button => {
             button.addEventListener('click', () => {
-                // Get the file name from the button's data attribute
                 const modelFileName = button.getAttribute('data-model');
-
-                // Update the model viewer's source to the new file
                 if (modelFileName) {
                     modelViewer.src = modelFileName;
                 }
