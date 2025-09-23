@@ -112,8 +112,10 @@
         document.querySelectorAll('.color-button').forEach(button => {
             button.addEventListener('click', () => {
                 const modelFileName = button.getAttribute('data-model');
-                modelViewer.src = modelFileName;
-                console.log(`Switched to model: ${modelFileName}`);
+                if (modelFileName) {
+                    modelViewer.src = modelFileName;
+                    console.log(`Switched to model: ${modelFileName}`);
+                }
             });
         });
     </script>
