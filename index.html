@@ -65,7 +65,7 @@
     <div class="container">
         <model-viewer
             id="car-model"
-            src="./astra sedan.glb"
+            src="astra sedan.glb"
             alt="3D Car Model"
             camera-controls
             ar
@@ -74,43 +74,53 @@
 
         <div class="color-controls">
             <h3>Choose Color</h3>
-            <button class="color-btn active" data-model="./astra sedan.glb">Astra</button>
-            <button class="color-btn" data-model="./blue sedan.glb">Blue</button>
-            <button class="color-btn" data-model="./red sedan.glb">Red</button>
+            <button class="color-btn active" data-model="astra sedan.glb">Astra</button>
+            <button class="color-btn" data-model="blue sedan.glb">Blue</button>
+            <button class="color-btn" data-model="red sedan.glb">Red</button>
         </div>
     </div>
 
     <script>
-        const modelViewer = document.getElementById('car-model');
-        const colorButtons = document.querySelectorAll('.color-btn');
+        // Wait for the page to fully load
+        window.addEventListener('DOMContentLoaded', function() {
+            const modelViewer = document.getElementById('car-model');
+            const colorButtons = document.querySelectorAll('.color-btn');
 
-        // Debug: Check if model loads
-        modelViewer.addEventListener('load', () => {
-            console.log('✅ Model loaded successfully');
-        });
+            console.log('🚗 Page loaded, found', colorButtons.length, 'color buttons');
 
-        modelViewer.addEventListener('error', (event) => {
-            console.error('❌ Model failed to load:', event);
-            console.error('Current src:', modelViewer.src);
-        });
+            // Debug: Check if model loads
+            modelViewer.addEventListener('load', () => {
+                console.log('✅ Model loaded successfully:', modelViewer.src);
+            });
 
-        // Check initial load
-        console.log('🔍 Trying to load initial model:', modelViewer.src);
+            modelViewer.addEventListener('error', (event) => {
+                console.error('❌ Model failed to load:', event);
+                console.error('Current src:', modelViewer.src);
+            });
 
-        colorButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Remove active class from all buttons
-                colorButtons.forEach(btn => btn.classList.remove('active'));
+            // Check initial load
+            console.log('🔍 Initial model should be:', modelViewer.src);
+
+            colorButtons.forEach((button, index) => {
+                console.log('Setting up button', index + 1, ':', button.textContent, 'for model:', button.dataset.model);
                 
-                // Add active class to clicked button
-                this.classList.add('active');
-                
-                // Change the car model
-                const newModel = this.dataset.model;
-                console.log('🎨 Changing to:', newModel);
-                modelViewer.src = newModel;
-                
-                console.log('Car color changed to:', this.textContent);
+                button.addEventListener('click', function() {
+                    console.log('🖱️ Button clicked:', this.textContent);
+                    
+                    // Remove active class from all buttons
+                    colorButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Change the car model
+                    const newModel = this.dataset.model;
+                    console.log('🎨 Changing from', modelViewer.src, 'to', newModel);
+                    
+                    modelViewer.src = newModel;
+                    
+                    console.log('✅ Model src updated to:', modelViewer.src);
+                });
             });
         });
     </script>
