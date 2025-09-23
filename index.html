@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Car Customizer</title>
+    <title>Working Car Customizer</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
         body, html {
@@ -84,7 +84,7 @@
     <div class="container">
         <model-viewer
             id="car-model"
-            src="blue.glb"
+            src="https://cdn.glitch.me/06385317-2101-44de-a89c-4f7f6f555c88/fiat-500.glb"
             alt="A 3D model of a car"
             ar ar-modes="webxr scene-viewer"
             shadow-intensity="1"
@@ -98,9 +98,9 @@
             <div class="control-group">
                 <h4>Color</h4>
                 <div class="button-group">
-                    <button class="color-button" data-model="red sedan.glb" style="background-color: #ff0000;"></button>
-                    <button class="color-button" data-model="blue.glb" style="background-color: #0000ff;"></button>
-                    <button class="color-button" data-model="astra sedan.glb" style="background-color: #cccccc;"></button>
+                    <button class="color-button" data-color="#ff0000" style="background-color: #ff0000;"></button>
+                    <button class="color-button" data-color="#0000ff" style="background-color: #0000ff;"></button>
+                    <button class="color-button" data-color="#cccccc" style="background-color: #cccccc;"></button>
                 </div>
             </div>
         </div>
@@ -108,14 +108,18 @@
 
     <script>
         const modelViewer = document.getElementById('car-model');
+        const CAR_BODY_MATERIAL_NAME = 'Material.001';
 
-        document.querySelectorAll('.color-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const modelFileName = button.getAttribute('data-model');
-                if (modelFileName) {
-                    modelViewer.src = modelFileName;
-                    console.log(`Switched to model: ${modelFileName}`);
-                }
+        modelViewer.addEventListener('load', () => {
+            const carBodyMaterial = modelViewer.model.materials.find(material => material.name === CAR_BODY_MATERIAL_NAME);
+
+            document.querySelectorAll('.color-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const newColor = button.getAttribute('data-color');
+                    if (carBodyMaterial) {
+                        carBodyMaterial.pbrMetallicRoughness.setBaseColorFactor(newColor);
+                    }
+                });
             });
         });
     </script>
