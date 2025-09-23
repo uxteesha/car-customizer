@@ -3,126 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Car Color Changer</title>
+    <title>Car Test</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        model-viewer {
-            width: 100%;
-            height: 500px;
-            background-color: #f8f8f8;
-            border-radius: 8px;
-        }
-
-        .color-controls {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .color-controls h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .color-btn {
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            padding: 10px 20px;
-            margin: 0 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .color-btn:hover {
-            border-color: #007bff;
-        }
-
-        .color-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <model-viewer
-            id="car-model"
-            src="astra sedan.glb"
-            alt="3D Car Model"
-            camera-controls
-            ar
-            auto-rotate>
-        </model-viewer>
+    <h1>Car Color Test</h1>
+    
+    <!-- Test with a known working model first -->
+    <model-viewer
+        id="car"
+        src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
+        camera-controls
+        style="width: 100%; height: 400px; background-color: #eee;">
+    </model-viewer>
 
-        <div class="color-controls">
-            <h3>Choose Color</h3>
-            <button class="color-btn active" data-model="astra sedan.glb">Astra</button>
-            <button class="color-btn" data-model="blue sedan.glb">Blue</button>
-            <button class="color-btn" data-model="red sedan.glb">Red</button>
-        </div>
+    <div style="margin: 20px 0;">
+        <button onclick="changeModel('https://modelviewer.dev/shared-assets/models/Astronaut.glb')">Test Model 1</button>
+        <button onclick="changeModel('https://modelviewer.dev/shared-assets/models/shishkebab.glb')">Test Model 2</button>
+        <button onclick="changeModel('astra sedan.glb')">Astra Car</button>
+        <button onclick="changeModel('blue sedan.glb')">Blue Car</button>
+        <button onclick="changeModel('red sedan.glb')">Red Car</button>
+    </div>
+
+    <div id="info" style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+        Current model: Loading...
     </div>
 
     <script>
-        // Wait for the page to fully load
-        window.addEventListener('DOMContentLoaded', function() {
-            const modelViewer = document.getElementById('car-model');
-            const colorButtons = document.querySelectorAll('.color-btn');
+        const viewer = document.getElementById('car');
+        const info = document.getElementById('info');
 
-            console.log('🚗 Page loaded, found', colorButtons.length, 'color buttons');
+        function changeModel(modelPath) {
+            console.log('Changing to:', modelPath);
+            info.textContent = 'Loading: ' + modelPath;
+            viewer.src = modelPath;
+        }
 
-            // Debug: Check if model loads
-            modelViewer.addEventListener('load', () => {
-                console.log('✅ Model loaded successfully:', modelViewer.src);
-            });
-
-            modelViewer.addEventListener('error', (event) => {
-                console.error('❌ Model failed to load:', event);
-                console.error('Current src:', modelViewer.src);
-            });
-
-            // Check initial load
-            console.log('🔍 Initial model should be:', modelViewer.src);
-
-            colorButtons.forEach((button, index) => {
-                console.log('Setting up button', index + 1, ':', button.textContent, 'for model:', button.dataset.model);
-                
-                button.addEventListener('click', function() {
-                    console.log('🖱️ Button clicked:', this.textContent);
-                    
-                    // Remove active class from all buttons
-                    colorButtons.forEach(btn => btn.classList.remove('active'));
-                    
-                    // Add active class to clicked button
-                    this.classList.add('active');
-                    
-                    // Change the car model
-                    const newModel = this.dataset.model;
-                    console.log('🎨 Changing from', modelViewer.src, 'to', newModel);
-                    
-                    modelViewer.src = newModel;
-                    
-                    console.log('✅ Model src updated to:', modelViewer.src);
-                });
-            });
+        viewer.addEventListener('load', () => {
+            console.log('✅ Model loaded:', viewer.src);
+            info.textContent = 'Loaded: ' + viewer.src;
         });
+
+        viewer.addEventListener('error', (e) => {
+            console.error('❌ Failed to load:', viewer.src);
+            info.textContent = 'ERROR loading: ' + viewer.src;
+        });
+
+        // Initial load
+        viewer.addEventListener('load', () => {
+            info.textContent = 'Loaded: ' + viewer.src;
+        }, { once: true });
     </script>
 </body>
 </html>
