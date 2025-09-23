@@ -116,8 +116,7 @@
     <div class="container">
         <model-viewer 
             id="car-model"
-            src="astra sedan.glb" 
-            alt="A 3D model of a car"
+            src="astra sedan.glb" alt="A 3D model of a car"
             ar 
             ar-modes="webxr scene-viewer"
             shadow-intensity="1"
@@ -135,21 +134,13 @@
             <div class="control-group">
                 <h4>Color</h4>
                 <div class="button-group">
-                    <button class="color-button" data-color="#ff0000" data-model="astra sedan"></button>
-                    <button class="color-button" data-color="#0000ff" data-model="blue sedan"></button>
-                    <button class="color-button" data-color="#cccccc" data-model="grey sedan"></button>
+                    <button class="color-button" data-color="#ff0000" data-model="red sedan.glb" style="background-color: #ff0000;"></button>
+                    <button class="color-button" data-color="#0000ff" data-model="blue sedan.glb" style="background-color: #0000ff;"></button>
+                    <button class="color-button" data-color="#cccccc" data-model="astra sedan.glb" style="background-color: #cccccc;"></button>
                 </div>
             </div>
 
-            <!-- <div class="control-group">
-                <h4>Wheels</h4>
-                <div class="button-group">
-                    <button class="wheels-button" data-wheels="style1"></button>
-                    <button class="wheels-button" data-wheels="style2"></button>
-                    <button class="wheels-button" data-wheels="style3"></button>
-                </div>
-            </div> -->
-        </div>
+            </div>
     </div>
 
     <script>
@@ -179,25 +170,27 @@
         document.querySelectorAll('.color-button').forEach(button => {
             button.addEventListener('click', () => {
                 // Get the file name from the button's data attribute
-                const modelFileName = button.getAttribute('data-model');
+                const modelFileName = button.getAttribute('data-model'); // This now gets "red sedan.glb" etc.
         
-                // Construct the new source path and update the model viewer's src attribute
+                // Set the src attribute directly. NO NEED TO ADD ".glb" HERE
                 if (modelFileName) {
-                    modelViewer.src = `${modelFileName}.glb`;
-                    console.log(`Switched to model: ${modelFileName}.glb`);
+                    modelViewer.src = modelFileName; 
+                    console.log(`Switched to model: ${modelFileName}`);
                 }
             });
         });
         
-        // Handle color changes
+        // The console.log for 'data-color' is redundant if you're not using Material API for colors,
+        // but it doesn't hurt anything.
         document.querySelectorAll('.color-button').forEach(button => {
             button.addEventListener('click', () => {
                 const color = button.getAttribute('data-color');
-                console.log(`Color changed to: ${color}`);
+                console.log(`Color of button clicked: ${color}`);
             });
         });
 
-        // Handle wheels changes
+        // This section for wheels is commented out in your HTML,
+        // so it won't do anything unless you uncomment the HTML for it.
         document.querySelectorAll('.wheels-button').forEach(button => {
             button.addEventListener('click', () => {
                 const wheelStyle = button.getAttribute('data-wheels');
