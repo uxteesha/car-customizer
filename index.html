@@ -9,25 +9,18 @@
 <body>
     <h1>Car Color Test</h1>
     
-    <!-- Test with a known working model first -->
+    <!-- Use URL encoding for spaces: %20 -->
     <model-viewer
         id="car"
-        src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
+        src="astra%20sedan.glb"
         camera-controls
         style="width: 100%; height: 400px; background-color: #eee;">
     </model-viewer>
 
     <div style="margin: 20px 0;">
-        <button onclick="changeModel('astra sedan.glb')">Astra Car (currently shows red)</button>
-        <button onclick="changeModel('blue sedan.glb')">Blue Car</button>
-        <button onclick="changeModel('red sedan.glb')">Red Car</button>
-    </div>
-
-    <div style="margin: 10px 0;">
-        <strong>File Check:</strong><br>
-        <button onclick="checkFile('astra sedan.glb')">Check if astra sedan.glb exists</button><br>
-        <button onclick="checkFile('blue sedan.glb')">Check if blue sedan.glb exists</button><br>
-        <button onclick="checkFile('red sedan.glb')">Check if red sedan.glb exists</button>
+        <button onclick="changeModel('astra%20sedan.glb')">Astra Car</button>
+        <button onclick="changeModel('blue%20sedan.glb')">Blue Car</button>
+        <button onclick="changeModel('red%20sedan.glb')">Red Car</button>
     </div>
 
     <div id="info" style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
