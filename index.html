@@ -143,61 +143,21 @@
             </div>
     </div>
 
-    <script>
-        // Get the model viewer element
-        const modelViewer = document.getElementById('car-model');
-        // NEW: Get the floor prompt element
-        const floorPrompt = document.getElementById('floor-prompt');
+<script>
+    const modelViewer = document.getElementById('car-model');
 
-        // NEW: Add a listener for the AR session to start
-        modelViewer.addEventListener('ar-status', (event) => {
-            if (event.detail.status === 'session-started') {
-                floorPrompt.style.display = 'block'; // Show the prompt
-            } else if (event.detail.status === 'session-ended') {
-                floorPrompt.style.display = 'none'; // Hide the prompt
+    document.querySelectorAll('.color-button').forEach(button => {
+        button.addEventListener('click', () => {
+            // Get the full filename from the button's data attribute
+            const modelFileName = button.getAttribute('data-model');
+
+            // Set the src attribute directly with the full filename
+            if (modelFileName) {
+                modelViewer.src = modelFileName;
+                console.log(`Switched to model: ${modelFileName}`);
             }
         });
-
-        // The 'ar-hit-test-result' event is fired when a surface is detected.
-        // We'll use a simple approach: if a result is found, hide the prompt.
-        // For more complex interactions, you would check the event details.
-        modelViewer.addEventListener('ar-hit-test-result', (event) => {
-            if (event.detail.hit) {
-                floorPrompt.style.display = 'none';
-            }
-        });
-        
-        document.querySelectorAll('.color-button').forEach(button => {
-            button.addEventListener('click', () => {
-                // Get the file name from the button's data attribute
-                const modelFileName = button.getAttribute('data-model'); // This now gets "red sedan.glb" etc.
-        
-                // Set the src attribute directly. NO NEED TO ADD ".glb" HERE
-                if (modelFileName) {
-                    modelViewer.src = modelFileName; 
-                    console.log(`Switched to model: ${modelFileName}`);
-                }
-            });
-        });
-        
-        // The console.log for 'data-color' is redundant if you're not using Material API for colors,
-        // but it doesn't hurt anything.
-        document.querySelectorAll('.color-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const color = button.getAttribute('data-color');
-                console.log(`Color of button clicked: ${color}`);
-            });
-        });
-
-        // This section for wheels is commented out in your HTML,
-        // so it won't do anything unless you uncomment the HTML for it.
-        document.querySelectorAll('.wheels-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const wheelStyle = button.getAttribute('data-wheels');
-                console.log(`Wheels style changed to: ${wheelStyle}`);
-            });
-        });
-
-    </script>
+    });
+</script>
 </body>
 </html>
