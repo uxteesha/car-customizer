@@ -28,7 +28,7 @@
 
   <!-- Car Model -->
   <model-viewer id="car"
-    src="/Car.glb"
+    src="/Car red tyre 1.glb"
     ar
     auto-rotate
     camera-controls
@@ -45,20 +45,19 @@
     viewer.addEventListener('load', () => {
       console.log("✅ Model loaded");
 
-      // List meshes and materials for debugging
+      // List meshes and materials
       console.log("Meshes:", viewer.model.meshes.map(m => m.name));
       console.log("Materials:", viewer.model.materials.map(m => m.name));
 
-      // Make sure everything is visible
+      // Make all meshes visible
       viewer.model.meshes.forEach(mesh => mesh.visible = true);
 
-      // Ensure no material is transparent
+      // Fix any transparent materials
       viewer.model.materials.forEach(mat => {
-        try {
-          mat.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]);
-        } catch (err) {
-          console.warn("Material issue:", mat, err);
-        }
+        const base = mat.pbrMetallicRoughness.getBaseColorFactor();
+        console.log("Material:", mat.name, "Base color:", base);
+        // Force alpha to 1
+        mat.pbrMetallicRoughness.setBaseColorFactor([base[0], base[1], base[2], 1]);
       });
     });
 
