@@ -58,7 +58,7 @@
   <div class="viewer-container">
     <!-- Car Body (without tyres) -->
     <model-viewer id="car-body"
-      src="/Car no tyres.glb"
+      src="/Car%20no%20tyres.glb"
       camera-controls
       auto-rotate
       ar
@@ -67,7 +67,7 @@
 
     <!-- Tyres -->
     <model-viewer id="tyres"
-      src="/Tyre 1.glb"
+      src="/Tyre%201.glb"
       camera-controls
       auto-rotate
       ar
@@ -83,13 +83,12 @@
   <script>
     const tyresViewer = document.querySelector('#tyres');
 
-    // Swap tyre models
     document.getElementById('btnTyre1').addEventListener('click', () => {
-      tyresViewer.setAttribute('src', '/Tyre 1.glb');
+      tyresViewer.setAttribute('src', '/Tyre%201.glb');
     });
 
     document.getElementById('btnTyre2').addEventListener('click', () => {
-      tyresViewer.setAttribute('src', '/Tyre 2.glb');
+      tyresViewer.setAttribute('src', '/Tyre%202.glb');
     });
   </script>
 
