@@ -33,7 +33,7 @@ const CarCustomizer = () => {
       // Default: Tyre Set 1 visible
       showTyres(tyresSet1, tyresSet2);
 
-      // Expose functions globally (optional) or hook into your buttons
+      // Button click handlers
       document.getElementById("btnSet1").onclick = () =>
         showTyres(tyresSet1, tyresSet2);
       document.getElementById("btnSet2").onclick = () =>
@@ -46,6 +46,7 @@ const CarCustomizer = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
+      {/* Model Viewer */}
       <model-viewer
         ref={viewerRef}
         id="car"
@@ -56,6 +57,7 @@ const CarCustomizer = () => {
         style={{ width: "100%", height: "500px" }}
       ></model-viewer>
 
+      {/* Buttons */}
       <div style={{ marginTop: "1rem", display: "flex", gap: "10px", justifyContent: "center" }}>
         <button id="btnSet1">Tyre Style 1</button>
         <button id="btnSet2">Tyre Style 2</button>
@@ -65,3 +67,4 @@ const CarCustomizer = () => {
 };
 
 export default CarCustomizer;
+
