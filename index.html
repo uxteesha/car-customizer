@@ -2,18 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Car Tyre Customizer - Three.js</title>
+  <title>Car Tyre Customizer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    body { margin: 0; background: #111; overflow: hidden; }
-    canvas { display: block; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    model-viewer {
+      width: 80%;
+      height: 500px;
+      background: #fff;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
     .controls {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
       display: flex;
       gap: 15px;
     }
+
     button {
       padding: 10px 20px;
       border: none;
@@ -24,6 +39,7 @@
       font-size: 16px;
       transition: background 0.3s;
     }
+
     button:hover {
       background: #0056b3;
     }
@@ -31,93 +47,61 @@
 </head>
 <body>
 
+  <!-- Car GLB (contains both tyre sets) -->
+  <model-viewer id="car"
+    src="/car.glb"
+    camera-controls
+    auto-rotate
+    ar
+    exposure="1"
+    shadow-intensity="1">
+  </model-viewer>
+
+  <!-- Tyre Controls -->
   <div class="controls">
-    <button id="btnTyre1">Tyre Style 1</button>
-    <button id="btnTyre2">Tyre Style 2</button>
+    <button id="btnSet1">Tyre Style 1</button>
+    <button id="btnSet2">Tyre Style 2</button>
   </div>
 
   <script type="module">
-    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js";
-    import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js";
-    import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/loaders/GLTFLoader.js";
+    const viewer = document.querySelector('#car');
 
-    // Scene setup
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x222222);
+    viewer.addEventListener('load', () => {
+      console.log("✅ Car model loaded");
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(3, 2, 5);
+      // Define tyre sets by node names
+      const tyresSet1 = [
+        viewer.model.getNode("Swift_Dzire"),
+        viewer.model.getNode("Swift_Dzire.001"),
+        viewer.model.getNode("Swift_Dzire.002"),
+        viewer.model.getNode("Swift_Dzire.003")
+      ];
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+      const tyresSet2 = [
+        viewer.model.getNode("default13131"),
+        viewer.model.getNode("default13131.001"),
+        viewer.model.getNode("default13131.002"),
+        viewer.model.getNode("default13131.003")
+      ];
 
-    const controls = new OrbitControls(camera, renderer.domElement);
-
-    // Lights
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
-    hemiLight.position.set(0, 20, 0);
-    scene.add(hemiLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.position.set(3, 10, 10);
-    scene.add(dirLight);
-
-    // Loader
-    const loader = new GLTFLoader();
-
-    let car, tyre1, tyre2, activeTyres;
-
-    // Load car body (without tyres)
-    loader.load("/Car no tyres.glb", (gltf) => {
-      car = gltf.scene;
-      scene.add(car);
-    });
-
-    // Load tyre 1
-    loader.load("/Tyre 1.glb", (gltf) => {
-      tyre1 = gltf.scene;
-      activeTyres = tyre1;
-      scene.add(tyre1);
-    });
-
-    // Load tyre 2 (keep hidden initially)
-    loader.load("/Tyre 2.glb", (gltf) => {
-      tyre2 = gltf.scene;
-      tyre2.visible = false;
-      scene.add(tyre2);
-    });
-
-    // Button controls
-    document.getElementById("btnTyre1").addEventListener("click", () => {
-      if (tyre1 && tyre2) {
-        tyre1.visible = true;
-        tyre2.visible = false;
-        activeTyres = tyre1;
+      // Helper to toggle sets
+      function showTyres(setToShow, setToHide) {
+        setToShow.forEach(node => node && (node.visible = true));
+        setToHide.forEach(node => node && (node.visible = false));
       }
-    });
 
-    document.getElementById("btnTyre2").addEventListener("click", () => {
-      if (tyre1 && tyre2) {
-        tyre1.visible = false;
-        tyre2.visible = true;
-        activeTyres = tyre2;
-      }
-    });
+      // Default: Show Tyre Set 1
+      showTyres(tyresSet1, tyresSet2);
 
-    // Resize handling
-    window.addEventListener("resize", () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+      // Button events
+      document.getElementById("btnSet1").addEventListener("click", () => {
+        showTyres(tyresSet1, tyresSet2);
+      });
 
-    // Render loop
-    function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    }
-    animate();
+      document.getElementById("btnSet2").addEventListener("click", () => {
+        showTyres(tyresSet2, tyresSet1);
+      });
+    });
   </script>
 
 </body>
