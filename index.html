@@ -18,7 +18,7 @@
     model-viewer {
       width: 80%;
       height: 500px;
-      background: #ddd;
+      background: #fff;
       border-radius: 10px;
       margin-bottom: 20px;
     }
@@ -49,9 +49,11 @@
     ar
     auto-rotate
     camera-controls
-    exposure="1"
+    camera-orbit="0deg 75deg 3m"
+    field-of-view="45deg"
     shadow-intensity="1"
-    shadow-softness="0.7">
+    shadow-softness="0.7"
+    style="background: #fff;">
   </model-viewer>
 
   <!-- Buttons -->
@@ -63,7 +65,12 @@
   <script type="module">
     const viewer = document.querySelector('#car');
 
+    // Debugging logs
     viewer.addEventListener('load', () => {
+      console.log("✅ Model loaded successfully");
+      console.log("Available materials:", viewer.model.materials.map(m => m.name));
+      console.log("Available meshes:", viewer.model.meshes.map(m => m.name));
+
       // Tyre set 1 (Swift Dzire)
       const tyresSet1 = [
         viewer.model.getNode("Swift_Dzire"),
@@ -97,6 +104,10 @@
       document.getElementById('btnSet2').addEventListener('click', () => {
         showTyres(tyresSet2, tyresSet1);
       });
+    });
+
+    viewer.addEventListener('error', (e) => {
+      console.error("❌ Model failed to load", e);
     });
   </script>
 
