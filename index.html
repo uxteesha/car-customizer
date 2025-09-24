@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Car Tyre Customizer</title>
+  <title>Car Debug Viewer</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body {
@@ -16,28 +16,11 @@
       margin: 0;
     }
     model-viewer {
-      width: 80%;
-      height: 500px;
+      width: 90%;
+      height: 600px;
       background: #fff;
       border-radius: 10px;
       margin-bottom: 20px;
-    }
-    .controls {
-      display: flex;
-      gap: 15px;
-    }
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #007bff;
-      color: white;
-      font-size: 16px;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: #0056b3;
     }
   </style>
 </head>
@@ -45,64 +28,37 @@
 
   <!-- Car Model -->
   <model-viewer id="car"
-    src="/car.glb"
+    src="/Car red tyre 1.glb"
     ar
     auto-rotate
     camera-controls
-    camera-orbit="0deg 75deg 3m"
+    camera-orbit="0deg 75deg auto"
     field-of-view="45deg"
     shadow-intensity="1"
     shadow-softness="0.7"
     style="background: #fff;">
   </model-viewer>
 
-  <!-- Buttons -->
-  <div class="controls">
-    <button id="btnSet1">Tyre Style 1</button>
-    <button id="btnSet2">Tyre Style 2</button>
-  </div>
-
   <script type="module">
     const viewer = document.querySelector('#car');
 
-    // Debugging logs
     viewer.addEventListener('load', () => {
-      console.log("✅ Model loaded successfully");
-      console.log("Available materials:", viewer.model.materials.map(m => m.name));
-      console.log("Available meshes:", viewer.model.meshes.map(m => m.name));
+      console.log("✅ Model loaded");
 
-      // Tyre set 1 (Swift Dzire)
-      const tyresSet1 = [
-        viewer.model.getNode("Swift_Dzire"),
-        viewer.model.getNode("Swift_Dzire.001"),
-        viewer.model.getNode("Swift_Dzire.002"),
-        viewer.model.getNode("Swift_Dzire.003")
-      ];
+      // List meshes and materials for debugging
+      console.log("Meshes:", viewer.model.meshes.map(m => m.name));
+      console.log("Materials:", viewer.model.materials.map(m => m.name));
 
-      // Tyre set 2 (default13131)
-      const tyresSet2 = [
-        viewer.model.getNode("default13131"),
-        viewer.model.getNode("default13131.001"),
-        viewer.model.getNode("default13131.002"),
-        viewer.model.getNode("default13131.003")
-      ];
+      // Make sure everything is visible
+      viewer.model.meshes.forEach(mesh => mesh.visible = true);
 
-      // Helper function to toggle tyre sets
-      function showTyres(setToShow, setToHide) {
-        setToShow.forEach(node => node && (node.visible = true));
-        setToHide.forEach(node => node && (node.visible = false));
-      }
-
-      // Default: show Tyre Style 1
-      showTyres(tyresSet1, tyresSet2);
-
-      // Button events
-      document.getElementById('btnSet1').addEventListener('click', () => {
-        showTyres(tyresSet1, tyresSet2);
-      });
-
-      document.getElementById('btnSet2').addEventListener('click', () => {
-        showTyres(tyresSet2, tyresSet1);
+      // Ensure no material is transparent
+      viewer.model.materials.forEach(mat => {
+        try {
+          mat.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]);
+        } catch (err) {
+          console.warn("Material issue:", mat, err);
+        }
       });
     });
 
