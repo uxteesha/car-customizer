@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Car Body Debug</title>
+  <title>Car with Tyre Swap</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body {
@@ -16,41 +16,80 @@
       margin: 0;
     }
 
-    model-viewer {
+    .viewer-container {
+      position: relative;
       width: 80%;
       height: 500px;
-      background: #fff;
-      border-radius: 10px;
       margin-bottom: 20px;
+    }
+
+    model-viewer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+
+    .controls {
+      display: flex;
+      gap: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #0056b3;
     }
   </style>
 </head>
 <body>
 
-  <!-- Car Body (without tyres) -->
-  <model-viewer id="car-body"
-    src="/Car%20no%20tyres.glb"
-    camera-controls
-    auto-rotate
-    ar
-    exposure="1"
-    shadow-intensity="1"
-    shadow-softness="0.7"
-    camera-orbit="0deg 75deg auto"
-    bounds="tight"
-    environment-image="neutral">
-  </model-viewer>
+  <div class="viewer-container">
+    <!-- Car Body (always visible) -->
+    <model-viewer id="car-body"
+      src="/Car%20no%20tyres.glb"
+      camera-controls
+      auto-rotate
+      exposure="1"
+      shadow-intensity="1">
+    </model-viewer>
 
-  <script type="module">
-    const viewer = document.querySelector('#car-body');
+    <!-- Tyres (swappable overlay) -->
+    <model-viewer id="tyres"
+      src="/Tyre%201.glb"
+      camera-controls
+      auto-rotate
+      exposure="1"
+      shadow-intensity="1">
+    </model-viewer>
+  </div>
 
-    viewer.addEventListener('load', () => {
-      console.log("✅ Car body loaded successfully");
-      console.log("Meshes:", viewer.model.meshes.map(m => m.name));
+  <div class="controls">
+    <button id="btnTyre1">Tyre Style 1</button>
+    <button id="btnTyre2">Tyre Style 2</button>
+  </div>
+
+  <script>
+    const tyresViewer = document.querySelector('#tyres');
+
+    // Swap tyre models
+    document.getElementById('btnTyre1').addEventListener('click', () => {
+      tyresViewer.setAttribute('src', '/Tyre%201.glb');
     });
 
-    viewer.addEventListener('error', (e) => {
-      console.error("❌ Car body failed to load", e);
+    document.getElementById('btnTyre2').addEventListener('click', () => {
+      tyresViewer.setAttribute('src', '/Tyre%202.glb');
     });
   </script>
 
