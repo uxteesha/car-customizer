@@ -1,19 +1,73 @@
-import React, { useEffect, useRef } from "react";
-import "@google/model-viewer"; // ensures <model-viewer> is recognized
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Car Tyre Customizer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    model-viewer {
+      width: 80%;
+      height: 500px;
+      background: #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .controls {
+      display: flex;
+      gap: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
 
-const CarCustomizer = () => {
-  const viewerRef = useRef(null);
+  <!-- Car Model -->
+  <model-viewer id="car"
+    src="car.glb"
+    ar
+    auto-rotate
+    camera-controls
+    exposure="1">
+  </model-viewer>
 
-  useEffect(() => {
-    const viewer = viewerRef.current;
+  <!-- Buttons -->
+  <div class="controls">
+    <button id="btnSet1">Tyre Style 1</button>
+    <button id="btnSet2">Tyre Style 2</button>
+  </div>
 
-    const handleLoad = () => {
+  <script type="module">
+    const viewer = document.querySelector('#car');
+
+    viewer.addEventListener('load', () => {
       // Tyre set 1 (Swift Dzire)
       const tyresSet1 = [
         viewer.model.getNode("Swift_Dzire"),
         viewer.model.getNode("Swift_Dzire.001"),
         viewer.model.getNode("Swift_Dzire.002"),
-        viewer.model.getNode("Swift_Dzire.003"),
+        viewer.model.getNode("Swift_Dzire.003")
       ];
 
       // Tyre set 2 (default13131)
@@ -21,50 +75,28 @@ const CarCustomizer = () => {
         viewer.model.getNode("default13131"),
         viewer.model.getNode("default13131.001"),
         viewer.model.getNode("default13131.002"),
-        viewer.model.getNode("default13131.003"),
+        viewer.model.getNode("default13131.003")
       ];
 
-      // Helper to toggle sets
+      // Helper function to toggle tyre sets
       function showTyres(setToShow, setToHide) {
-        setToShow.forEach((node) => node && (node.visible = true));
-        setToHide.forEach((node) => node && (node.visible = false));
+        setToShow.forEach(node => node && (node.visible = true));
+        setToHide.forEach(node => node && (node.visible = false));
       }
 
-      // Default: Tyre Set 1 visible
+      // Default: show Tyre Style 1
       showTyres(tyresSet1, tyresSet2);
 
-      // Button click handlers
-      document.getElementById("btnSet1").onclick = () =>
+      // Button events
+      document.getElementById('btnSet1').addEventListener('click', () => {
         showTyres(tyresSet1, tyresSet2);
-      document.getElementById("btnSet2").onclick = () =>
+      });
+
+      document.getElementById('btnSet2').addEventListener('click', () => {
         showTyres(tyresSet2, tyresSet1);
-    };
+      });
+    });
+  </script>
 
-    viewer.addEventListener("load", handleLoad);
-    return () => viewer.removeEventListener("load", handleLoad);
-  }, []);
-
-  return (
-    <div style={{ textAlign: "center" }}>
-      {/* Model Viewer */}
-      <model-viewer
-        ref={viewerRef}
-        id="car"
-        src="/car.glb"
-        ar
-        auto-rotate
-        camera-controls
-        style={{ width: "100%", height: "500px" }}
-      ></model-viewer>
-
-      {/* Buttons */}
-      <div style={{ marginTop: "1rem", display: "flex", gap: "10px", justifyContent: "center" }}>
-        <button id="btnSet1">Tyre Style 1</button>
-        <button id="btnSet2">Tyre Style 2</button>
-      </div>
-    </div>
-  );
-};
-
-export default CarCustomizer;
-
+</body>
+</html>
