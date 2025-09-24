@@ -1,0 +1,67 @@
+import React, { useEffect, useRef } from "react";
+import "@google/model-viewer"; // ensures <model-viewer> is recognized
+
+const CarCustomizer = () => {
+  const viewerRef = useRef(null);
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+
+    const handleLoad = () => {
+      // Tyre set 1 (Swift Dzire)
+      const tyresSet1 = [
+        viewer.model.getNode("Swift_Dzire"),
+        viewer.model.getNode("Swift_Dzire.001"),
+        viewer.model.getNode("Swift_Dzire.002"),
+        viewer.model.getNode("Swift_Dzire.003"),
+      ];
+
+      // Tyre set 2 (default13131)
+      const tyresSet2 = [
+        viewer.model.getNode("default13131"),
+        viewer.model.getNode("default13131.001"),
+        viewer.model.getNode("default13131.002"),
+        viewer.model.getNode("default13131.003"),
+      ];
+
+      // Helper to toggle sets
+      function showTyres(setToShow, setToHide) {
+        setToShow.forEach((node) => node && (node.visible = true));
+        setToHide.forEach((node) => node && (node.visible = false));
+      }
+
+      // Default: Tyre Set 1 visible
+      showTyres(tyresSet1, tyresSet2);
+
+      // Expose functions globally (optional) or hook into your buttons
+      document.getElementById("btnSet1").onclick = () =>
+        showTyres(tyresSet1, tyresSet2);
+      document.getElementById("btnSet2").onclick = () =>
+        showTyres(tyresSet2, tyresSet1);
+    };
+
+    viewer.addEventListener("load", handleLoad);
+    return () => viewer.removeEventListener("load", handleLoad);
+  }, []);
+
+  return (
+    <div style={{ textAlign: "center" }}>
+      <model-viewer
+        ref={viewerRef}
+        id="car"
+        src="/car.glb"
+        ar
+        auto-rotate
+        camera-controls
+        style={{ width: "100%", height: "500px" }}
+      ></model-viewer>
+
+      <div style={{ marginTop: "1rem", display: "flex", gap: "10px", justifyContent: "center" }}>
+        <button id="btnSet1">Tyre Style 1</button>
+        <button id="btnSet2">Tyre Style 2</button>
+      </div>
+    </div>
+  );
+};
+
+export default CarCustomizer;
