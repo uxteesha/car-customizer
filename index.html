@@ -1,110 +1,159 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>A-Frame Car Customizer AR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Car AR: Quick Test</title>
 
-  <!-- Core A-Frame -->
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <!-- AR module for hit-test + placement -->
-  <script src="https://cdn.jsdelivr.net/npm/aframe-ar@1.1.0/dist/aframe-ar.min.js"></script>
+  <!-- model-viewer (stable release) -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   <style>
-    body { margin: 0; overflow: hidden; font-family: sans-serif; }
-    a-scene { width: 100%; height: 100%; }
-    .ui {
+    html,body { height:100%; margin:0; background:#111; }
+    .wrap { width:100%; height:100%; position:relative; display:flex; align-items:center; justify-content:center; }
+
+    model-viewer {
+      width:100%;
+      height:100%;
+      display:block;
+      background: #222;
+    }
+
+    /* big AR button overlay */
+    .ar-ui {
       position: absolute;
-      bottom: 20px;
+      bottom: 32px;
       left: 50%;
       transform: translateX(-50%);
-      display: flex;
-      gap: 12px;
-      background: rgba(255,255,255,0.85);
-      padding: 10px 15px;
-      border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-      z-index: 10;
+      display:flex;
+      gap:10px;
+      z-index: 40;
+      pointer-events: none; /* allow clicks through unless the button itself */
     }
-    .ui button {
-      padding: 8px 14px;
+
+    .btn {
+      pointer-events: auto;
+      padding: 12px 18px;
+      background:#007bff;
+      color:#fff;
+      border-radius:10px;
       border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #007bff;
-      color: #fff;
-      font-weight: 600;
+      font-weight:700;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+      cursor:pointer;
     }
-    .ui button:hover { background: #0056b3; }
+
     .status {
       position: absolute;
       top: 12px;
       left: 12px;
-      padding: 6px 10px;
-      background: rgba(0,0,0,0.6);
-      border-radius: 6px;
-      color: #fff;
-      font-size: 13px;
-      z-index: 10;
+      z-index: 50;
+      color:#fff;
+      background: rgba(0,0,0,0.45);
+      padding:8px 10px;
+      border-radius:8px;
+      font-size:13px;
+    }
+
+    .note {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 50;
+      color:#fff;
+      background: rgba(0,0,0,0.45);
+      padding:8px 10px;
+      border-radius:8px;
+      font-size:13px;
+      max-width:40%;
     }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <!-- Replace the src with the exact URL / filename of your .glb -->
+    <!-- If your filename has spaces, use encodeURI() or replace spaces with %20 in the src. -->
+    <model-viewer id="mv"
+      src="grey sedan.glb"
+      alt="Car model"
+      camera-controls
+      auto-rotate
+      exposure="1"
+      shadow-intensity="1"
+      ar
+      ar-modes="webxr scene-viewer quick-look"
+      ar-placement="floor"
+      ar-scale="fixed"
+      style="background: transparent;">
+    </model-viewer>
 
-  <div class="status" id="status">Loading…</div>
+    <div class="status" id="status">Initializing…</div>
+    <div class="note" id="note">Tip: test on Android Chrome (ARCore) for best results. If nothing happens, check DevTools → Network (404 for GLB) or test device AR support.</div>
 
-  <a-scene
-    vr-mode-ui="enabled: false"
-    embedded
-    renderer="colorManagement: true; physicallyCorrectLights: true"
-    webxr="optionalFeatures: hit-test, local-floor, bounded-floor, dom-overlay; overlayElement: .ui"
-    background="transparent">
-
-    <!-- lights -->
-    <a-entity light="type: hemisphere; intensity: 0.9"></a-entity>
-    <a-entity light="type: directional; intensity: 1" position="2 4 3"></a-entity>
-
-    <!-- camera -->
-    <a-entity camera position="0 1.6 0"></a-entity>
-
-    <!-- car model -->
-    <a-entity id="car"
-      gltf-model="grey sedan.glb"
-      scale="1 1 1"
-      ar-hit-test="target:#car">
-    </a-entity>
-
-  </a-scene>
-
-  <!-- UI -->
-  <div class="ui">
-    <button data-model="grey sedan.glb">Grey</button>
-    <button data-model="blue sedan.glb">Blue</button>
-    <button data-model="astra sedan.glb">Astra</button>
+    <div class="ar-ui">
+      <button id="enterAr" class="btn">Enter AR</button>
+      <button id="placeDefault" class="btn">Place on Floor</button>
+    </div>
   </div>
 
 <script>
-  const car = document.getElementById('car');
-  const statusEl = document.getElementById('status');
+  const mv = document.getElementById('mv');
+  const status = document.getElementById('status');
+  const enterBtn = document.getElementById('enterAr');
+  const placeBtn = document.getElementById('placeDefault');
 
-  car.addEventListener('model-loaded', () => {
-    statusEl.textContent = "✅ Car loaded, tap on floor to place";
+  // Helper: encode spacey filenames for safety when swapping
+  function encodePath(p){ try { return encodeURI(p); } catch(e){ return p; } }
+
+  // 1) When model is loaded into the viewer (3D view)
+  mv.addEventListener('load', () => {
+    console.log('model-viewer: model load event');
+    status.textContent = 'Model ready (3D view). Tap Enter AR to place in room.';
   });
 
-  car.addEventListener('model-error', e => {
-    statusEl.textContent = "❌ Failed to load car";
-    console.error("Model load error", e);
+  mv.addEventListener('error', (ev) => {
+    console.error('model-viewer error', ev);
+    status.textContent = 'Model failed to load — check console/network.';
   });
 
-  document.querySelectorAll('.ui button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const file = btn.getAttribute('data-model');
-      if (file) {
-        statusEl.textContent = `Loading ${file}...`;
-        car.setAttribute('gltf-model', file);
+  // 2) Check whether AR is available via the model-viewer feature
+  // model-viewer exposes .canActivateAR() async method on element
+  async function updateArSupport() {
+    // model-viewer v1 exposes canActivateAR as method returning a promise
+    let supported = false;
+    try {
+      // some builds support canActivateAR, others expose a fewer methods — guard it
+      if (typeof mv.canActivateAR === 'function') {
+        supported = await mv.canActivateAR();
+      } else if (navigator.xr && navigator.xr.isSessionSupported) {
+        // fallback check for WebXR immersive-ar
+        supported = await navigator.xr.isSessionSupported('immersive-ar');
+      } else {
+        supported = false;
       }
-    });
-  });
-</script>
-</body>
-</html>
+    } catch (e) {
+      supported = false;
+    }
+
+    if (supported) {
+      status.textContent = 'AR available on this device. Tap Enter AR.';
+      enterBtn.disabled = false;
+      placeBtn.disabled = false;
+    } else {
+      status.textContent = 'AR not available (or needs Scene Viewer / Quick Look). Enter AR will attempt fallback.';
+      enterBtn.disabled = false; // let user try fallback (scene-viewer / quick-look)
+      placeBtn.disabled = true;
+    }
+  }
+
+  updateArSupport();
+
+  // 3) Manual Enter AR (tries WebXR first; then falls back)
+  enterBtn.addEventListener('click', async () => {
+    status.textContent = 'Trying to enter AR…';
+    try {
+      // activateAR is provided by model-viewer and will trigger the AR flow
+      await mv.activateAR();
+      // if returns without error, browser entered AR or handed off to Scene Viewer / Quick Look
+      // model-viewer also fires 'ar-status' events in some builds; but we can detect via visibility
+      status.textContent = 'AR s
