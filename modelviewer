@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>A-Frame Car AR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      .controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+      }
+      button {
+        padding: 8px 14px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #007bff;
+        color: #fff;
+        font-size: 14px;
+      }
+      button:hover { background: #0056b3; }
+    </style>
+  </head>
+  <body>
+    <a-scene
+      xr-mode-ui="enabled: true"
+      webxr="optionalFeatures: hit-test, local-floor"
+      renderer="colorManagement: true; physicallyCorrectLights: true"
+      embedded
+      vr-mode-ui="enabled: false">
+      
+      <!-- Light -->
+      <a-entity light="type: directional; intensity: 1" position="2 4 3"></a-entity>
+      <a-entity light="type: ambient; intensity: 0.5"></a-entity>
+
+      <!-- Camera -->
+      <a-camera position="0 1.6 3"></a-camera>
+
+      <!-- Car model (default: pink) -->
+      <a-entity id="car"
+        gltf-model="futuristic pink.glb"
+        scale="1 1 1"
+        position="0 0 -2">
+      </a-entity>
+    </a-scene>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button onclick="setCar('futuristic pink.glb')">Pink</button>
+      <button onclick="setCar('futuristic blue.glb')">Blue</button>
+      <button onclick="setCar('futuristic green.glb')">Green</button>
+      <button onclick="setCar('model.glb')">Tyres Style 1</button>
+      <button onclick="setCar('model1.glb')">Tyres Style 2</button>
+    </div>
+
+    <script>
+      function setCar(file) {
+        document.getElementById('car').setAttribute('gltf-model', file);
+      }
+    </script>
+  </body>
+</html>
