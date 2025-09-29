@@ -1,101 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Car Customizer AR (WebXR)</title>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: sans-serif;
-      background: #f0f0f0;
-      overflow: hidden;
-    }
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>A-Frame Car Customizer AR</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; font-family: sans-serif; }
+      .controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 12px 18px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      }
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #007bff;
+        color: white;
+        font-size: 15px;
+      }
+      button:hover { background: #0056b3; }
+    </style>
+  </head>
+  <body>
+    <a-scene
+      vr-mode-ui="enabled: false"
+      embedded
+      xrweb="mode: ar; referenceSpaceType: local-floor;"
+      renderer="colorManagement: true; physicallyCorrectLights"
+      background="color: #000">
+      
+      <!-- Light -->
+      <a-entity light="type: hemisphere; intensity: 1" position="0 2 0"></a-entity>
+      <a-entity light="type: directional; intensity: 1" position="2 4 3"></a-entity>
 
-    .viewer-container {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
+      <!-- Camera -->
+      <a-entity camera look-controls></a-entity>
 
-    model-viewer {
-      width: 100%;
-      height: 100%;
-      --poster-color: transparent;
-      transform: translateY(0.5m); /* Push car slightly downward */
-    }
+      <!-- Car model -->
+      <a-entity id="car"
+        gltf-model="grey sedan.glb"
+        scale="0.01 0.01 0.01"
+        position="0 0 -2">
+      </a-entity>
+    </a-scene>
 
-    .controls-panel {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(10px);
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .color-selector {
-      width: 45px;
-      height: 45px;
-      border: 3px solid #fff;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .color-selector:hover {
-      transform: scale(1.1);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-  </style>
-</head>
-<body>
-  <div class="viewer-container">
-    <model-viewer
-      id="car-model"
-      src="grey sedan.glb"
-      alt="3D car"
-      ar
-      ar-modes="webxr"         <!-- Force WebXR mode -->
-      ar-placement="floor"
-      ar-scale="fixed"
-      camera-controls
-      shadow-intensity="1"
-      auto-rotate
-    >
-    </model-viewer>
-
-    <div class="controls-panel">
-      <button class="color-selector" data-model="astra sedan.glb" style="background-color: #ff0000;"></button>
-      <button class="color-selector" data-model="blue sedan.glb" style="background-color: #0000ff;"></button>
-      <button class="color-selector" data-model="grey sedan.glb" style="background-color: #888888;"></button>
+    <!-- Control Buttons -->
+    <div class="controls">
+      <button data-model="grey sedan.glb">Grey</button>
+      <button data-model="blue sedan.glb">Blue</button>
+      <button data-model="astra sedan.glb">Red</button>
     </div>
-  </div>
 
-  <script>
-    const modelViewer = document.getElementById('car-model');
-
-    // Add event listener to each button
-    document.querySelectorAll('.color-selector').forEach(button => {
-      button.addEventListener('click', () => {
-        const modelFileName = button.getAttribute('data-model');
-        if (modelFileName) {
-          console.log("Switching to:", modelFileName);
-          modelViewer.src = modelFileName;
-        }
+    <script>
+      const carEntity = document.getElementById('car');
+      document.querySelectorAll('.controls button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const newModel = btn.getAttribute('data-model');
+          if (newModel) {
+            carEntity.setAttribute('gltf-model', newModel);
+            console.log("Switched car to:", newModel);
+          }
+        });
       });
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
