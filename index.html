@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <style>
-      body { margin: 0; overflow: hidden; }
+      body { margin: 0; overflow: hidden; background: #000; }
       .controls {
         position: absolute;
         bottom: 20px;
@@ -14,7 +14,6 @@
         transform: translateX(-50%);
         display: flex;
         gap: 10px;
-        flex-wrap: wrap;
       }
       button {
         padding: 8px 14px;
@@ -34,40 +33,42 @@
       webxr="optionalFeatures: hit-test, local-floor"
       xr-mode-ui="enabled: true"
       renderer="colorManagement: true; physicallyCorrectLights: true"
-      embedded
       vr-mode-ui="enabled: false"
+      embedded
       background="color: #ECECEC">
 
       <!-- Lights -->
       <a-entity light="type: directional; intensity: 1" position="2 4 3"></a-entity>
-      <a-entity light="type: ambient; intensity: 0.5"></a-entity>
+      <a-entity light="type: ambient; intensity: 0.6"></a-entity>
 
       <!-- Camera -->
       <a-camera position="0 1.6 3"></a-camera>
 
-      <!-- Default car -->
+      <!-- Default Car Model (pink) -->
       <a-entity id="car"
-        gltf-model="futuristic%20pink.glb"
+        gltf-model="futuristic_pink.glb"
         scale="1 1 1"
         position="0 0 -2">
       </a-entity>
     </a-scene>
 
-    <!-- Controls -->
+    <!-- Color Controls -->
     <div class="controls">
-      <!-- Color options -->
-      <button onclick="setCar('futuristic%20pink.glb')">Pink</button>
-      <button onclick="setCar('futuristic%20blue.glb')">Blue</button>
-      <button onclick="setCar('futuristic%20green.glb')">Green</button>
-
-      <!-- Tyre options -->
-      <button onclick="setCar('model.glb')">Tyre Style 1</button>
-      <button onclick="setCar('model1.glb')">Tyre Style 2</button>
+      <button onclick="setCar('futuristic_pink.glb')">Pink</button>
+      <button onclick="setCar('futuristic_blue.glb')">Blue</button>
+      <button onclick="setCar('futuristic_green.glb')">Green</button>
     </div>
 
     <script>
       function setCar(file) {
-        document.getElementById('car').setAttribute('gltf-model', file);
+        console.log("Loading:", file);
+        const car = document.getElementById('car');
+        car.setAttribute('gltf-model', file);
+
+        // Log error if model fails to load
+        car.addEventListener('model-error', (e) => {
+          console.error("❌ Failed to load model:", file, e.detail);
+        });
       }
     </script>
   </body>
