@@ -161,7 +161,7 @@
       }
     });
 
-    // Color buttons
+    // Color buttons (full car models with body color)
     document.querySelectorAll('.color-selector').forEach(button => {
       button.addEventListener('click', () => {
         const modelFileName = button.getAttribute('data-model');
@@ -171,7 +171,7 @@
       });
     });
 
-    // Tyre buttons
+    // Tyre buttons (full car models with tyre variations)
     document.querySelectorAll('.tyre-btn').forEach(button => {
       button.addEventListener('click', () => {
         const modelFileName = button.getAttribute('data-model');
