@@ -14,6 +14,7 @@
         transform: translateX(-50%);
         display: flex;
         gap: 10px;
+        flex-wrap: wrap;
       }
       button {
         padding: 8px 14px;
@@ -23,28 +24,30 @@
         background: #007bff;
         color: #fff;
         font-size: 14px;
+        font-weight: 600;
       }
       button:hover { background: #0056b3; }
     </style>
   </head>
   <body>
     <a-scene
-      xr-mode-ui="enabled: true"
       webxr="optionalFeatures: hit-test, local-floor"
+      xr-mode-ui="enabled: true"
       renderer="colorManagement: true; physicallyCorrectLights: true"
       embedded
-      vr-mode-ui="enabled: false">
-      
-      <!-- Light -->
+      vr-mode-ui="enabled: false"
+      background="color: #ECECEC">
+
+      <!-- Lights -->
       <a-entity light="type: directional; intensity: 1" position="2 4 3"></a-entity>
       <a-entity light="type: ambient; intensity: 0.5"></a-entity>
 
       <!-- Camera -->
       <a-camera position="0 1.6 3"></a-camera>
 
-      <!-- Car model (default: pink) -->
+      <!-- Default car -->
       <a-entity id="car"
-        gltf-model="futuristic pink.glb"
+        gltf-model="futuristic%20pink.glb"
         scale="1 1 1"
         position="0 0 -2">
       </a-entity>
@@ -52,11 +55,14 @@
 
     <!-- Controls -->
     <div class="controls">
-      <button onclick="setCar('futuristic pink.glb')">Pink</button>
-      <button onclick="setCar('futuristic blue.glb')">Blue</button>
-      <button onclick="setCar('futuristic green.glb')">Green</button>
-      <button onclick="setCar('model.glb')">Tyres Style 1</button>
-      <button onclick="setCar('model1.glb')">Tyres Style 2</button>
+      <!-- Color options -->
+      <button onclick="setCar('futuristic%20pink.glb')">Pink</button>
+      <button onclick="setCar('futuristic%20blue.glb')">Blue</button>
+      <button onclick="setCar('futuristic%20green.glb')">Green</button>
+
+      <!-- Tyre options -->
+      <button onclick="setCar('model.glb')">Tyre Style 1</button>
+      <button onclick="setCar('model1.glb')">Tyre Style 2</button>
     </div>
 
     <script>
