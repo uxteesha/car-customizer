@@ -105,7 +105,7 @@
   <div class="viewer-container">
     <model-viewer
       id="car-model"
-      src="futuristicpink.glb"
+      src="futuristic pink.glb"
       alt="A 3D model of a car"
       ar
       ar-modes="webxr scene-viewer"
@@ -121,8 +121,8 @@
       <div id="colorControls" class="controls-group">
         <h4>Body Color</h4>
         <div class="button-list">
-          <button class="color-selector" data-model="futuristicpink.glb" style="background-color: #ff0000;"></button>
-          <button class="color-selector" data-model="futuristicblue.glb" style="background-color: #0000ff;"></button
+          <button class="color-selector" data-model="futuristic pink.glb" style="background-color: pink;"></button>
+          <button class="color-selector" data-model="futuristic blue.glb" style="background-color: blue;"></button>
         </div>
       </div>
 
@@ -160,7 +160,7 @@
       }
     });
 
-    // Color buttons (full car models with body color)
+    // Color buttons
     document.querySelectorAll('.color-selector').forEach(button => {
       button.addEventListener('click', () => {
         const modelFileName = button.getAttribute('data-model');
@@ -170,7 +170,7 @@
       });
     });
 
-    // Tyre buttons (full car models with tyre variations)
+    // Tyre buttons
     document.querySelectorAll('.tyre-btn').forEach(button => {
       button.addEventListener('click', () => {
         const modelFileName = button.getAttribute('data-model');
