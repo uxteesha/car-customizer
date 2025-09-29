@@ -1,77 +1,187 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>A-Frame Car Customizer AR</title>
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
-    <style>
-      body { margin: 0; overflow: hidden; font-family: sans-serif; }
-      .controls {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 15px;
-        background: rgba(255, 255, 255, 0.8);
-        padding: 12px 18px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>A-Frame Car Customizer (center + live swap)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #111; color: #fff; }
+    a-scene { width: 100vw; height: 100vh; display: block; }
+    .ui {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      background: rgba(255,255,255,0.88);
+      color: #111;
+      padding: 10px 14px;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      z-index: 10;
+    }
+    .ui button {
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #0b72ff;
+      color: white;
+      font-weight: 600;
+    }
+    .ui button:active { transform: translateY(1px); }
+    .status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 8px 10px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="status" id="status">Loading scene…</div>
+
+  <a-scene id="scene"
+           embedded
+           vr-mode-ui="enabled: false"
+           renderer="colorManagement: true; physicallyCorrectLights: true"
+           background="color: #222">
+
+    <!-- lights -->
+    <a-entity light="type: hemisphere; intensity: 0.9; groundColor: #777" position="0 2 0"></a-entity>
+    <a-entity light="type: directional; intensity: 1" position="2 4 3"></a-entity>
+    <a-entity light="type: ambient; intensity: 0.4"></a-entity>
+
+    <!-- camera for normal view -->
+    <a-entity id="cam" camera position="0 1.6 3" look-controls></a-entity>
+
+    <!-- car entity (initial model) -->
+    <a-entity id="car"
+              gltf-model="grey sedan.glb"
+              position="0 0 -2"
+              rotation="0 0 0"
+              visible="true">
+    </a-entity>
+
+  </a-scene>
+
+  <!-- UI -->
+  <div class="ui" id="ui">
+    <button data-model="grey sedan.glb">Grey</button>
+    <button data-model="blue sedan.glb">Blue</button>
+    <button data-model="astra sedan.glb">Astra</button>
+  </div>
+
+<script>
+  const statusEl = document.getElementById('status');
+  const carEntity = document.getElementById('car');
+  const ui = document.getElementById('ui');
+
+  // Utility: show status
+  function setStatus(text) {
+    statusEl.textContent = text;
+  }
+
+  // Called whenever the model is loaded — centers it, rescales to reasonable height and places bottom at y=0
+  function adjustModelToFloor(object3D) {
+    // object3D is the THREE.Object3D root of the loaded glTF (car)
+    if (!object3D) return;
+
+    // Make all meshes visible & disable frustum culling to avoid disappearing
+    object3D.traverse(node => {
+      if (node.isMesh) {
+        node.visible = true;
+        node.frustumCulled = false;
       }
-      button {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        background: #007bff;
-        color: white;
-        font-size: 15px;
+    });
+
+    // Compute bounding box
+    const box = new THREE.Box3().setFromObject(object3D);
+    if (!box.isEmpty()) {
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+
+      // TARGET height in meters for the car (approx). Tune as needed.
+      const TARGET_HEIGHT = 1.5; // 1.5 meters tall expected
+      let scaleFactor = 1;
+      if (size.y > 0) {
+        scaleFactor = TARGET_HEIGHT / size.y;
       }
-      button:hover { background: #0056b3; }
-    </style>
-  </head>
-  <body>
-    <a-scene
-      vr-mode-ui="enabled: false"
-      embedded
-      xrweb="mode: ar; referenceSpaceType: local-floor;"
-      renderer="colorManagement: true; physicallyCorrectLights"
-      background="color: #000">
-      
-      <!-- Light -->
-      <a-entity light="type: hemisphere; intensity: 1" position="0 2 0"></a-entity>
-      <a-entity light="type: directional; intensity: 1" position="2 4 3"></a-entity>
 
-      <!-- Camera -->
-      <a-entity camera look-controls></a-entity>
+      // Apply uniform scale on the object
+      object3D.scale.setScalar(scaleFactor);
 
-      <!-- Car model -->
-      <a-entity id="car"
-        gltf-model="grey sedan.glb"
-        scale="0.01 0.01 0.01"
-        position="0 0 -2">
-      </a-entity>
-    </a-scene>
+      // Recompute box after scaling
+      const box2 = new THREE.Box3().setFromObject(object3D);
+      box2.getSize(size);
+      box2.getCenter(center);
 
-    <!-- Control Buttons -->
-    <div class="controls">
-      <button data-model="grey sedan.glb">Grey</button>
-      <button data-model="blue sedan.glb">Blue</button>
-      <button data-model="astra sedan.glb">Red</button>
-    </div>
+      // Compute min Y after scaling
+      const min = box2.min;
 
-    <script>
-      const carEntity = document.getElementById('car');
-      document.querySelectorAll('.controls button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const newModel = btn.getAttribute('data-model');
-          if (newModel) {
-            carEntity.setAttribute('gltf-model', newModel);
-            console.log("Switched car to:", newModel);
-          }
-        });
-      });
-    </script>
-  </body>
+      // Move the model so min.y → 0 (puts bottom on floor)
+      // Also center horizontally around origin (optional so the car sits centered)
+      object3D.position.x = -center.x;
+      object3D.position.z = -center.z;
+      object3D.position.y = -min.y;
+
+      // Ensure world matrix updates
+      object3D.updateMatrixWorld(true);
+
+      setStatus(`Model loaded — height ${size.y.toFixed(2)}m, scaled ${scaleFactor.toFixed(2)}x`);
+    } else {
+      setStatus('Model loaded — bounding box empty (check GLB).');
+    }
+  }
+
+  // model-loaded listener - triggers each time gltf-model changes and finishes loading
+  carEntity.addEventListener('model-loaded', (evt) => {
+    setStatus('Model loaded — adjusting to floor...');
+    // get raw three.js object
+    const obj = carEntity.getObject3D('mesh');
+    if (!obj) {
+      setStatus('Model loaded but no mesh found.');
+      return;
+    }
+
+    // small delay helps ensure geometry is fully available
+    setTimeout(() => {
+      adjustModelToFloor(obj);
+    }, 50);
+  });
+
+  carEntity.addEventListener('model-error', (evt) => {
+    console.error('Model error', evt);
+    setStatus('Failed to load model (check console/network).');
+  });
+
+  // Buttons: swap model and let model-loaded handle centering
+  ui.querySelectorAll('button[data-model]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const file = btn.getAttribute('data-model');
+      if (!file) return;
+      setStatus(`Loading ${file} ...`);
+      // Set the new model — A-Frame will emit model-loaded when ready
+      carEntity.setAttribute('gltf-model', file);
+    });
+  });
+
+  // If the model fails to appear at all, show helpful tips in console
+  window.addEventListener('load', () => {
+    console.log('If the model does not appear:');
+    console.log('- Confirm GLB files are in same folder or serveable URL (Network tab).');
+    console.log('- Check console for 404 or parse errors.');
+    console.log('- If model appears tiny/huge, adjust TARGET_HEIGHT in code or tune scale manually.');
+  });
+</script>
+</body>
 </html>
