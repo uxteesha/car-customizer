@@ -1,159 +1,138 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Car AR: Quick Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Car Customizer</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        /* CSS Variables for colors and spacing */
+        :root {
+            --background-color: #f0f0f0;
+            --control-panel-bg: rgba(255, 255, 255, 0.8);
+            --control-panel-blur: 10px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --button-size: 45px;
+            --button-border: 3px solid #fff;
+        }
 
-  <!-- model-viewer (stable release) -->
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+        /* Full-screen body and container */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: sans-serif;
+            overflow: hidden;
+            background-color: var(--background-color);
+        }
+        
+        .viewer-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
 
-  <style>
-    html,body { height:100%; margin:0; background:#111; }
-    .wrap { width:100%; height:100%; position:relative; display:flex; align-items:center; justify-content:center; }
+        /* Model viewer styling */
+        model-viewer {
+            width: 100%;
+            height: 100%;
+        }
 
-    model-viewer {
-      width:100%;
-      height:100%;
-      display:block;
-      background: #222;
-    }
+        /* Controls panel styling */
+        .controls-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--control-panel-bg);
+            backdrop-filter: blur(var(--control-panel-blur));
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .controls-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
 
-    /* big AR button overlay */
-    .ar-ui {
-      position: absolute;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      display:flex;
-      gap:10px;
-      z-index: 40;
-      pointer-events: none; /* allow clicks through unless the button itself */
-    }
+        .controls-group h4 {
+            margin: 0;
+            font-size: 16px;
+            color: #444;
+        }
 
-    .btn {
-      pointer-events: auto;
-      padding: 12px 18px;
-      background:#007bff;
-      color:#fff;
-      border-radius:10px;
-      border: none;
-      font-weight:700;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
-      cursor:pointer;
-    }
+        .button-list {
+            display: flex;
+            gap: 10px;
+        }
 
-    .status {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      z-index: 50;
-      color:#fff;
-      background: rgba(0,0,0,0.45);
-      padding:8px 10px;
-      border-radius:8px;
-      font-size:13px;
-    }
+        /* Color button styling */
+        .color-selector {
+            width: var(--button-size);
+            height: var(--button-size);
+            border: var(--button-border);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
 
-    .note {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 50;
-      color:#fff;
-      background: rgba(0,0,0,0.45);
-      padding:8px 10px;
-      border-radius:8px;
-      font-size:13px;
-      max-width:40%;
-    }
-  </style>
+        .color-selector:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- Replace the src with the exact URL / filename of your .glb -->
-    <!-- If your filename has spaces, use encodeURI() or replace spaces with %20 in the src. -->
-    <model-viewer id="mv"
-      src="grey sedan.glb"
-      alt="Car model"
-      camera-controls
-      auto-rotate
-      exposure="1"
-      shadow-intensity="1"
-      ar
-      ar-modes="webxr scene-viewer quick-look"
-      ar-placement="floor"
-      ar-scale="fixed"
-      style="background: transparent;">
-    </model-viewer>
 
-    <div class="status" id="status">Initializing…</div>
-    <div class="note" id="note">Tip: test on Android Chrome (ARCore) for best results. If nothing happens, check DevTools → Network (404 for GLB) or test device AR support.</div>
+    <div class="viewer-container">
+        <model-viewer
+            id="car-model"
+            src="grey sedan.glb"
+            alt="A 3D model of a car"
+            ar ar-modes="webxr scene-viewer"
+            shadow-intensity="1"
+            camera-controls
+            auto-rotate
+        >
+        </model-viewer>
 
-    <div class="ar-ui">
-      <button id="enterAr" class="btn">Enter AR</button>
-      <button id="placeDefault" class="btn">Place on Floor</button>
+        <div class="controls-panel">
+            <div class="controls-group">
+                <h4>Body Color</h4>
+                <div class="button-list">
+                    <button class="color-selector" data-model="astra sedan.glb" style="background-color: #ff0000;"></button>
+                    <button class="color-selector" data-model="blue sedan.glb" style="background-color: #0000ff;"></button>
+                    <button class="color-selector" data-model="grey sedan.glb" style="background-color: #888888;"></button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-<script>
-  const mv = document.getElementById('mv');
-  const status = document.getElementById('status');
-  const enterBtn = document.getElementById('enterAr');
-  const placeBtn = document.getElementById('placeDefault');
+    <script>
+        // Get the model viewer element from the DOM
+        const modelViewer = document.getElementById('car-model');
 
-  // Helper: encode spacey filenames for safety when swapping
-  function encodePath(p){ try { return encodeURI(p); } catch(e){ return p; } }
+        // Add a click event listener to each color button
+        document.querySelectorAll('.color-selector').forEach(button => {
+            button.addEventListener('click', () => {
+                // Get the file name from the button's data attribute
+                const modelFileName = button.getAttribute('data-model');
 
-  // 1) When model is loaded into the viewer (3D view)
-  mv.addEventListener('load', () => {
-    console.log('model-viewer: model load event');
-    status.textContent = 'Model ready (3D view). Tap Enter AR to place in room.';
-  });
+                // Update the model viewer's source to the new file
+                if (modelFileName) {
+                    modelViewer.src = modelFileName;
+                }
+            });
+        });
+    </script>
 
-  mv.addEventListener('error', (ev) => {
-    console.error('model-viewer error', ev);
-    status.textContent = 'Model failed to load — check console/network.';
-  });
-
-  // 2) Check whether AR is available via the model-viewer feature
-  // model-viewer exposes .canActivateAR() async method on element
-  async function updateArSupport() {
-    // model-viewer v1 exposes canActivateAR as method returning a promise
-    let supported = false;
-    try {
-      // some builds support canActivateAR, others expose a fewer methods — guard it
-      if (typeof mv.canActivateAR === 'function') {
-        supported = await mv.canActivateAR();
-      } else if (navigator.xr && navigator.xr.isSessionSupported) {
-        // fallback check for WebXR immersive-ar
-        supported = await navigator.xr.isSessionSupported('immersive-ar');
-      } else {
-        supported = false;
-      }
-    } catch (e) {
-      supported = false;
-    }
-
-    if (supported) {
-      status.textContent = 'AR available on this device. Tap Enter AR.';
-      enterBtn.disabled = false;
-      placeBtn.disabled = false;
-    } else {
-      status.textContent = 'AR not available (or needs Scene Viewer / Quick Look). Enter AR will attempt fallback.';
-      enterBtn.disabled = false; // let user try fallback (scene-viewer / quick-look)
-      placeBtn.disabled = true;
-    }
-  }
-
-  updateArSupport();
-
-  // 3) Manual Enter AR (tries WebXR first; then falls back)
-  enterBtn.addEventListener('click', async () => {
-    status.textContent = 'Trying to enter AR…';
-    try {
-      // activateAR is provided by model-viewer and will trigger the AR flow
-      await mv.activateAR();
-      // if returns without error, browser entered AR or handed off to Scene Viewer / Quick Look
-      // model-viewer also fires 'ar-status' events in some builds; but we can detect via visibility
-      status.textContent = 'AR s
+</body>
+</html>
