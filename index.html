@@ -3,78 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Car Customizer</title>
+  <title>AR Car Customizer</title>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
   <style>
-    :root {
-      --control-panel-bg: rgba(255, 255, 255, 0.9);
-      --button-size: 45px;
-    }
     body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: sans-serif;
-      background: #f0f0f0;
+      margin: 0; padding: 0; height: 100%; width: 100%;
+      font-family: sans-serif; background: #f0f0f0;
     }
-    .viewer-container {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-    model-viewer {
-      width: 100%;
-      height: 100%;
-    }
+    .viewer-container { width: 100%; height: 100%; position: relative; }
+    model-viewer { width: 100%; height: 100%; }
     .controls-panel {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--control-panel-bg);
-      border-radius: 12px;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: rgba(255,255,255,0.9); border-radius: 12px;
+      padding: 15px; display: flex; flex-direction: column;
+      align-items: center; gap: 15px;
     }
-    .controls-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-    .button-list {
-      display: flex;
-      gap: 10px;
-    }
+    .button-list { display: flex; gap: 10px; }
     .color-selector {
-      width: var(--button-size);
-      height: var(--button-size);
-      border: 2px solid #fff;
-      border-radius: 50%;
+      width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fff;
       cursor: pointer;
     }
-    .tyre-btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #007bff;
-      color: #fff;
-      font-weight: 600;
+    .tyre-btn, .mode-btn {
+      padding: 8px 16px; border: none; border-radius: 8px;
+      cursor: pointer; font-weight: 600; color: #fff;
     }
-    .mode-btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #28a745;
-      color: #fff;
-      font-weight: 600;
-    }
+    .tyre-btn { background: #007bff; }
+    .mode-btn { background: #28a745; }
   </style>
 </head>
 <body>
@@ -85,6 +39,7 @@
       alt="A 3D model of a car"
       ar
       ar-modes="webxr scene-viewer quick-look"
+      ar-scale="fixed"
       shadow-intensity="1"
       camera-controls
       auto-rotate>
@@ -94,7 +49,7 @@
       <button id="modeSwitch" class="mode-btn">Switch to Tyre Mode</button>
 
       <!-- Color Controls -->
-      <div id="colorControls" class="controls-group">
+      <div id="colorControls">
         <h4>Body Color</h4>
         <div class="button-list">
           <button class="color-selector" data-model="futuristic pink.glb" style="background:pink;"></button>
@@ -104,7 +59,7 @@
       </div>
 
       <!-- Tyre Controls -->
-      <div id="tyreControls" class="controls-group" style="display:none;">
+      <div id="tyreControls" style="display:none;">
         <h4>Tyres</h4>
         <div class="button-list">
           <button class="tyre-btn" data-model="model.glb">Style 1</button>
@@ -119,7 +74,6 @@
     const modeSwitch = document.getElementById('modeSwitch');
     const colorControls = document.getElementById('colorControls');
     const tyreControls = document.getElementById('tyreControls');
-
     let currentMode = 'color';
 
     // Switch modes
@@ -127,30 +81,27 @@
       if (currentMode === 'color') {
         currentMode = 'tyre';
         colorControls.style.display = 'none';
-        tyreControls.style.display = 'flex';
+        tyreControls.style.display = 'block';
         modeSwitch.textContent = 'Switch to Color Mode';
       } else {
         currentMode = 'color';
-        colorControls.style.display = 'flex';
+        colorControls.style.display = 'block';
         tyreControls.style.display = 'none';
         modeSwitch.textContent = 'Switch to Tyre Mode';
       }
     });
 
-    // Button click handler
-    function attachHandlers(selector, type) {
+    // Handle button clicks
+    function attachHandlers(selector) {
       document.querySelectorAll(selector).forEach(button => {
         button.addEventListener('click', () => {
           const modelFile = button.getAttribute('data-model');
-          if (modelFile) {
-            console.log(`Switching ${type} to:`, modelFile);
-            modelViewer.src = modelFile;
-          }
+          if (modelFile) modelViewer.src = modelFile;
         });
       });
     }
-    attachHandlers('.color-selector', 'color');
-    attachHandlers('.tyre-btn', 'tyre');
+    attachHandlers('.color-selector');
+    attachHandlers('.tyre-btn');
   </script>
 </body>
 </html>
