@@ -1,185 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Car Customizer</title>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-  <style>
-    :root {
-      --background-color: #f0f0f0;
-      --control-panel-bg: rgba(255, 255, 255, 0.8);
-      --control-panel-blur: 10px;
-      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      --button-size: 45px;
-      --button-border: 3px solid #fff;
-    }
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: sans-serif;
-      overflow: hidden;
-      background-color: var(--background-color);
-    }
-    .viewer-container {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-    model-viewer {
-      width: 100%;
-      height: 100%;
-    }
-    .controls-panel {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--control-panel-bg);
-      backdrop-filter: blur(var(--control-panel-blur));
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: var(--box-shadow);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-    }
-    .controls-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-    .controls-group h4 {
-      margin: 0;
-      font-size: 16px;
-      color: #444;
-    }
-    .button-list {
-      display: flex;
-      gap: 10px;
-    }
-    .color-selector {
-      width: var(--button-size);
-      height: var(--button-size);
-      border: var(--button-border);
-      border-radius: 50%;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-    .color-selector:hover {
-      transform: scale(1.1);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-    .tyre-btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #007bff;
-      color: #fff;
-      font-size: 14px;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-    .tyre-btn:hover {
-      background: #0056b3;
-    }
-    .mode-btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #28a745;
-      color: #fff;
-      font-size: 14px;
-      font-weight: 600;
-    }
-  </style>
-</head>
-<body>
-  <div class="viewer-container">
-    <model-viewer
-      id="car-model"
-      src="futuristic pink.glb"
-      alt="A 3D model of a car"
-      ar
-      ar-modes="webxr scene-viewer"
-      shadow-intensity="1"
-      camera-controls
-      auto-rotate>
-    </model-viewer>
-
-    <div class="controls-panel">
-      <button id="modeSwitch" class="mode-btn">Switch to Tyre Mode</button>
-
-      <!-- Color Controls -->
-      <div id="colorControls" class="controls-group">
-        <h4>Body Color</h4>
-        <div class="button-list">
-          <button class="color-selector" data-model="futuristic pink.glb" style="background-color: pink;"></button>
-          <button class="color-selector" data-model="futuristic blue.glb" style="background-color: blue;"></button>
-          <button class="color-selector" data-model="futuristic green.glb" style="background-color: green;"></button>
-        </div>
-      </div>
-
-      <!-- Tyre Controls (hidden by default) -->
-      <div id="tyreControls" class="controls-group" style="display:none;">
-        <h4>Tyres</h4>
-        <div class="button-list">
-          <button class="tyre-btn" data-model="model.glb">Style 1</button>
-          <button class="tyre-btn" data-model="model1.glb">Style 2</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const modelViewer = document.getElementById('car-model');
-    const modeSwitch = document.getElementById('modeSwitch');
-    const colorControls = document.getElementById('colorControls');
-    const tyreControls = document.getElementById('tyreControls');
-
-    let currentMode = 'color'; // default mode
-
-    // Switch mode
-    modeSwitch.addEventListener('click', () => {
-      if (currentMode === 'color') {
-        currentMode = 'tyre';
-        colorControls.style.display = 'none';
-        tyreControls.style.display = 'flex';
-        modeSwitch.textContent = 'Switch to Color Mode';
-      } else {
-        currentMode = 'color';
-        colorControls.style.display = 'flex';
-        tyreControls.style.display = 'none';
-        modeSwitch.textContent = 'Switch to Tyre Mode';
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>A-Frame Car AR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      .controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
       }
-    });
+      button {
+        padding: 8px 14px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #007bff;
+        color: #fff;
+        font-size: 14px;
+      }
+      button:hover { background: #0056b3; }
+    </style>
+  </head>
+  <body>
+    <a-scene
+      xr-mode-ui="enabled: true"
+      webxr="optionalFeatures: hit-test, local-floor"
+      renderer="colorManagement: true; physicallyCorrectLights: true"
+      embedded
+      vr-mode-ui="enabled: false">
+      
+      <!-- Light -->
+      <a-entity light="type: directional; intensity: 1" position="2 4 3"></a-entity>
+      <a-entity light="type: ambient; intensity: 0.5"></a-entity>
 
-    // Color buttons
-    document.querySelectorAll('.color-selector').forEach(button => {
-      button.addEventListener('click', () => {
-        const modelFileName = button.getAttribute('data-model');
-        if (modelFileName) {
-          modelViewer.src = modelFileName;
-        }
-      });
-    });
+      <!-- Camera -->
+      <a-camera position="0 1.6 3"></a-camera>
 
-    // Tyre buttons
-    document.querySelectorAll('.tyre-btn').forEach(button => {
-      button.addEventListener('click', () => {
-        const modelFileName = button.getAttribute('data-model');
-        if (modelFileName) {
-          modelViewer.src = modelFileName;
-        }
-      });
-    });
-  </script>
-</body>
+      <!-- Car model (default: pink) -->
+      <a-entity id="car"
+        gltf-model="futuristic pink.glb"
+        scale="1 1 1"
+        position="0 0 -2">
+      </a-entity>
+    </a-scene>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button onclick="setCar('futuristic pink.glb')">Pink</button>
+      <button onclick="setCar('futuristic blue.glb')">Blue</button>
+      <button onclick="setCar('futuristic green.glb')">Green</button>
+      <button onclick="setCar('model.glb')">Tyres Style 1</button>
+      <button onclick="setCar('model1.glb')">Tyres Style 2</button>
+    </div>
+
+    <script>
+      function setCar(file) {
+        document.getElementById('car').setAttribute('gltf-model', file);
+      }
+    </script>
+  </body>
 </html>
