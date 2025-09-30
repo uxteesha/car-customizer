@@ -1,151 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Car Customizer with Hotspots</title>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-    <style>
-      body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #f0f0f0; font-family: sans-serif; }
-      model-viewer { width: 100%; height: 100%; }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Car Customizer with Hotspots</title>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #f0f0f0; font-family: sans-serif; }
+    model-viewer { width: 100%; height: 100%; }
 
-      /* Controls */
-      .controls-panel {
-        position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-        background: rgba(255,255,255,0.9); border-radius: 12px;
-        padding: 15px; display: flex; flex-direction: column;
-        align-items: center; gap: 15px;
-      }
-      .button-list { display: flex; gap: 10px; }
-      .color-selector {
-        width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fff;
-        cursor: pointer;
-      }
-      .tyre-btn, .mode-btn {
-        padding: 8px 16px; border: none; border-radius: 8px;
-        cursor: pointer; font-weight: 600; color: #fff;
-      }
-      .tyre-btn { background: #007bff; }
-      .mode-btn { background: #28a745; }
+    /* Controls */
+    .controls-panel {
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: rgba(255,255,255,0.9); border-radius: 12px;
+      padding: 15px; display: flex; flex-direction: column;
+      align-items: center; gap: 15px;
+    }
+    .button-list { display: flex; gap: 10px; }
+    .color-selector {
+      width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fff;
+      cursor: pointer;
+    }
+    .tyre-btn, .mode-btn {
+      padding: 8px 16px; border: none; border-radius: 8px;
+      cursor: pointer; font-weight: 600; color: #fff;
+    }
+    .tyre-btn { background: #007bff; }
+    .mode-btn { background: #28a745; }
 
-      /* Hotspot styles */
-      .Hotspot { background: rgba(0,123,255,0.9); border-radius: 50%; border: 2px solid #fff; }
-      .HotspotAnnotation { background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 6px; font-size: 13px; font-weight: 600; color: #333; }
-    </style>
-  </head>
-  <body>
-    <model-viewer
-      id="car-viewer"
-      src="Pink futuristic real.glb"
-      ar
-      ar-modes="scene-viewer quick-look webxr"
-      ar-placement="floor"
-      ar-scale="fixed"
-      camera-controls
-      shadow-intensity="1"
-      field-of-view="30deg"
-      xr-environment
-      disable-pan>
+    /* Hotspot styles */
+    .Hotspot { background: rgba(0,123,255,0.9); border-radius: 50%; border: 2px solid #fff; }
+    .HotspotAnnotation { background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 6px; font-size: 13px; font-weight: 600; color: #333; }
+  </style>
+</head>
+<body>
+  <model-viewer
+    id="car-viewer"
+    src="Pink futuristic real.glb"
+    poster="assets/poster.png"
+    ar
+    ar-modes="webxr scene-viewer quick-look"
+    ar-placement="floor"
+    ar-scale="fixed"
+    camera-controls
+    shadow-intensity="1"
+    field-of-view="30deg"
+    xr-environment
+    disable-pan>
 
-      <!-- DOOR HOTSPOT -->
-      <button class="Hotspot" slot="hotspot-2" data-surface="79 0 2387 905 2388 0.265 0.158 0.577" data-visibility-attribute="visible">
-        <div class="HotspotAnnotation">Open Doors</div>
-      </button>
+    <!-- DOOR HOTSPOT -->
+    <button class="Hotspot" slot="hotspot-2" data-surface="79 0 2387 905 2388 0.265 0.158 0.577" data-visibility-attribute="visible">
+      <div class="HotspotAnnotation">Open Doors</div>
+    </button>
 
-      <!-- OTHER HOTSPOTS -->
-      <button class="Hotspot" slot="hotspot-3" data-title="Tyres" data-description="19-inch Diamond-cut Graphene Alloy wheels">
-        <div class="HotspotAnnotation">Tyres</div>
-      </button>
+    <!-- ANNOTATIONS START -->
+    <button class="Hotspot" 
+      slot="hotspot-3" 
+      data-position="-1.0129080117791056m 0.4496240760795325m -1.8568594526380542m" 
+      data-normal="-0.5230824020171959m 0.8378915599439669m 0.15595683529293122m" 
+      data-visibility-attribute="visible" 
+      data-title="Tyres" 
+      data-description="19-inch Diamond-cut Graphene Alloy wheels (airless, self-sealing, magnetic levitation).">
+      <div class="HotspotAnnotation">Tyres</div>
+    </button>
 
-      <button class="Hotspot" slot="hotspot-4" data-title="Speed" data-description="0-100 km/r within 1.45 seconds. Governed 350km/h">
-        <div class="HotspotAnnotation">Speed</div>
-      </button>
+    <button class="Hotspot" 
+      slot="hotspot-4"
+      data-position="0.08555671925668895m 1.316307781640377m -1.9664828641073007m" 
+      data-normal="0.010006396645117367m 0.9927707036953178m -0.1196085361104477m" 
+      data-visibility-attribute="visible" 
+      data-title="Speed" 
+      data-description="100 km/r within 1.45 seconds. Governed Speed 350km/h">
+      <div class="HotspotAnnotation">Speed</div>
+    </button>
 
-      <button class="Hotspot" slot="hotspot-5" data-title="Windows" data-description="Chromic Smart Glass with AR HUD">
-        <div class="HotspotAnnotation">Windows</div>
-      </button>
+    <button class="Hotspot" 
+      slot="hotspot-5" 
+      data-position="-0.1819589114957214m 1.9816244770250495m 0.26479836268620427m" 
+      data-normal="-0.02959233215327415m 0.9942860855126491m -0.10256448719544028m" 
+      data-visibility-attribute="visible" 
+      data-title="WindowsElectro" 
+      data-description="Chromic Smart Glass serves as a full Augmented Reality HUD.">
+      <div class="HotspotAnnotation">WindowsElectro</div>
+    </button>
 
-      <button class="Hotspot" slot="hotspot-6" data-title="Mileage" data-description="Perpetual Range (Effectively Infinite)">
-        <div class="HotspotAnnotation">Mileage</div>
-      </button>
+    <button class="Hotspot" 
+      slot="hotspot-6" 
+      data-position="-0.026758096050141084m 0.9639880037994947m 2.5179298326685178m" 
+      data-normal="-0.0075662832498763054m -0.0010722259778223984m 0.9999708004183098m" 
+      data-visibility-attribute="visible" 
+      data-title="Mileage" 
+      data-description="Perpetual Range (Effectively Infinite)">
+      <div class="HotspotAnnotation">Mileage</div>
+    </button>
 
-      <button class="Hotspot" slot="hotspot-7" data-title="Engine" data-description="Quantum Fusion Drive (QFD): Zero-emission">
-        <div class="HotspotAnnotation">Engine Tri-Core</div>
-      </button>
+    <button class="Hotspot" 
+      slot="hotspot-7" 
+      data-position="1.0140414410935739m 1.1741242531324094m 0.9727303427697893m" 
+      data-normal="0.9613706407267112m 0.26095995008274536m -0.0875579556723677m" 
+      data-visibility-attribute="visible" 
+      data-title="Engine Tri-Core" 
+      data-description="Quantum Fusion Drive (QFD): Zero-emission, silent power.">
+      <div class="HotspotAnnotation">Engine Tri-Core</div>
+    </button>
 
-      <button class="Hotspot" slot="hotspot-8" data-title="Key Tech" data-description="Omni-Pilot AI and Bio-Lock interior">
-        <div class="HotspotAnnotation">Key Tech</div>
-      </button>
-    </model-viewer>
+    <button class="Hotspot" 
+      slot="hotspot-8" 
+      data-position="1.0140414789387980m 1.1741467829189032m 0.9727303427697893m" 
+      data-normal="0.9613706407267112m 0.26095995008274536m -0.0875579556723677m" 
+      data-visibility-attribute="visible" 
+      data-title="Key Technology" 
+      data-description="Omni-Pilot AI and Bio-Lock interior (adapts to occupant comfort).">
+      <div class="HotspotAnnotation">Key Technology</div>
+    </button>
+    <!-- ANNOTATIONS END -->
+  </model-viewer>
 
-    <!-- CONTROLS -->
-    <div class="controls-panel">
-      <button id="modeSwitch" class="mode-btn">Switch to Tyre Mode</button>
+  <!-- CONTROLS PANEL -->
+  <div class="controls-panel">
+    <button id="modeSwitch" class="mode-btn">Switch to Tyre Mode</button>
 
-      <!-- Color Controls -->
-      <div id="colorControls">
-        <h4>Body Color</h4>
-        <div class="button-list">
-          <button class="color-selector" data-model="Pink futuristic real.glb" style="background:pink;"></button>
-          <button class="color-selector" data-model="Blue futuristic car real size.glb" style="background:blue;"></button>
-          <button class="color-selector" data-model="Green futuristic real.glb" style="background:green;"></button>
-        </div>
-      </div>
-
-      <!-- Tyre Controls -->
-      <div id="tyreControls" style="display:none;">
-        <h4>Tyres</h4>
-        <div class="button-list">
-          <button class="tyre-btn" data-model="Blue futuristic car real size.glb">Style 1</button>
-          <button class="tyre-btn" data-model="Blue futuristic tyre 2.glb">Style 2</button>
-        </div>
+    <!-- Color Controls -->
+    <div id="colorControls">
+      <h4>Body Color</h4>
+      <div class="button-list">
+        <button class="color-selector" data-model="Pink futuristic real.glb" style="background:pink;"></button>
+        <button class="color-selector" data-model="Blue futuristic car real size.glb" style="background:blue;"></button>
+        <button class="color-selector" data-model="Green futuristic real.glb" style="background:green;"></button>
       </div>
     </div>
 
-    <script>
-      // Switcher logic
-      const modelViewer = document.querySelector('#car-viewer');
-      const modeSwitch = document.getElementById('modeSwitch');
-      const colorControls = document.getElementById('colorControls');
-      const tyreControls = document.getElementById('tyreControls');
-      let currentMode = 'color';
+    <!-- Tyre Controls -->
+    <div id="tyreControls" style="display:none;">
+      <h4>Tyres</h4>
+      <div class="button-list">
+        <button class="tyre-btn" data-model="Blue futuristic car real size.glb">Style 1</button>
+        <button class="tyre-btn" data-model="Blue futuristic tyre 2.glb">Style 2</button>
+      </div>
+    </div>
+  </div>
 
-      modeSwitch.addEventListener('click', () => {
-        if (currentMode === 'color') {
-          currentMode = 'tyre';
-          colorControls.style.display = 'none';
-          tyreControls.style.display = 'block';
-          modeSwitch.textContent = 'Switch to Color Mode';
-        } else {
-          currentMode = 'color';
-          colorControls.style.display = 'block';
-          tyreControls.style.display = 'none';
-          modeSwitch.textContent = 'Switch to Tyre Mode';
-        }
-      });
+  <!-- INFO PANEL -->
+  <div id="info-panel">
+    <h3 id="panel-title"></h3>
+    <p id="panel-content"></p>
+    <button id="close-panel">Close</button>
+  </div>
 
-      function attachHandlers(selector) {
-        document.querySelectorAll(selector).forEach(button => {
-          button.addEventListener('click', () => {
-            const modelFile = button.getAttribute('data-model');
-            if (modelFile) modelViewer.src = modelFile;
-          });
+  <script>
+    // INFO PANEL LOGIC
+    document.addEventListener('DOMContentLoaded', () => {
+      const infoPanel = document.getElementById('info-panel');
+      const panelTitle = document.getElementById('panel-title');
+      const panelContent = document.getElementById('panel-content');
+      const closeButton = document.getElementById('close-panel');
+
+      const hotspots = document.querySelectorAll('.Hotspot');
+      hotspots.forEach(hotspot => {
+        hotspot.addEventListener('click', (event) => {
+          event.preventDefault();
+          const title = hotspot.getAttribute('data-title');
+          const description = hotspot.getAttribute('data-description');
+          if (title && description) {
+            panelTitle.textContent = title;
+            panelContent.textContent = description;
+            infoPanel.style.display = 'block';
+          }
         });
-      }
-      attachHandlers('.color-selector');
-      attachHandlers('.tyre-btn');
-
-      // Door hotspot animation
-      const doorHotspot = modelViewer.querySelector('button[slot="hotspot-2"]');
-      doorHotspot.addEventListener('click', () => {
-        modelViewer.currentTime = 0;
-        modelViewer.animationName = 'doorsOpeningAction';
-        modelViewer.play();
-        const duration = modelViewer.duration;
-        if (duration > 0) {
-          setTimeout(() => modelViewer.pause(), duration * 1000);
-        }
       });
-    </script>
-  </body>
+
+      closeButton.addEventListener('click', () => {
+        infoPanel.style.display = 'none';
+      });
+    });
+
+    const modelViewer = document.querySelector('#car-viewer');
+
+    // DOOR ANIMATION
+    const doorHotspot = modelViewer.querySelector('button[slot="hotspot-2"]');
+    doorHotspot.addEventListener('click', () => {
+      modelViewer.currentTime = 0;
+      modelViewer.animationName = 'doorsOpeningAction';
+      modelViewer.play();
+      const durationInSeconds = modelViewer.duration;
+      if (durationInSeconds > 0) {
+        setTimeout(() => { modelViewer.pause(); }, durationInSeconds * 1000);
+      }
+    });
+
+    // COLOR/TYRE SWITCHER
+    const modeSwitch = document.getElementById('modeSwitch');
+    const colorControls = document.getElementById('colorControls');
+    const tyreControls = document.getElementById('tyreControls');
+    let currentMode = 'color';
+
+    modeSwitch.addEventListener('click', () => {
+      if (currentMode === 'color') {
+        currentMode = 'tyre';
+        colorControls.style.display = 'none';
+        tyreControls.style.display = 'block';
+        modeSwitch.textContent = 'Switch to Color Mode';
+      } else {
+        currentMode = 'color';
+        colorControls.style.display = 'block';
+        tyreControls.style.display = 'none';
+        modeSwitch.textContent = 'Switch to Tyre Mode';
+      }
+    });
+
+    function attachHandlers(selector) {
+      document.querySelectorAll(selector).forEach(button => {
+        button.addEventListener('click', () => {
+          const modelFile = button.getAttribute('data-model');
+          if (modelFile) modelViewer.src = modelFile;
+        });
+      });
+    }
+    attachHandlers('.color-selector');
+    attachHandlers('.tyre-btn');
+  </script>
+</body>
 </html>
