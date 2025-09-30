@@ -3,13 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR Car Customizer with Hotspots</title>
+  <title>AR Car Customizer with Dots</title>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
   <style>
     body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #f0f0f0; font-family: sans-serif; }
     model-viewer { width: 100%; height: 100%; }
 
-    /* Controls */
+    /* Hotspot dots */
+    .Hotspot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #007bff;
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+
+    /* Hidden annotation box that appears on click */
+    .HotspotAnnotation {
+      display: none;
+      position: absolute;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      white-space: nowrap;
+    }
+
+    .Hotspot.active .HotspotAnnotation {
+      display: block;
+    }
+
+    /* Control Panel */
     .controls-panel {
       position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
       background: rgba(255,255,255,0.9); border-radius: 12px;
@@ -27,100 +54,34 @@
     }
     .tyre-btn { background: #007bff; }
     .mode-btn { background: #28a745; }
-
-    /* Hotspot styles */
-    .Hotspot { background: rgba(0,123,255,0.9); border-radius: 50%; border: 2px solid #fff; }
-    .HotspotAnnotation { background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 6px; font-size: 13px; font-weight: 600; color: #333; }
   </style>
 </head>
 <body>
   <model-viewer
     id="car-viewer"
     src="Pink futuristic real.glb"
-    poster="assets/poster.png"
     ar
     ar-modes="webxr scene-viewer quick-look"
     ar-placement="floor"
     ar-scale="fixed"
     camera-controls
     shadow-intensity="1"
-    field-of-view="30deg"
     xr-environment
     disable-pan>
-
-    <!-- DOOR HOTSPOT -->
-    <button class="Hotspot" slot="hotspot-2" data-surface="79 0 2387 905 2388 0.265 0.158 0.577" data-visibility-attribute="visible">
-      <div class="HotspotAnnotation">Open Doors</div>
-    </button>
-
-    <!-- ANNOTATIONS START -->
-    <button class="Hotspot" 
-      slot="hotspot-3" 
-      data-position="-1.0129080117791056m 0.4496240760795325m -1.8568594526380542m" 
-      data-normal="-0.5230824020171959m 0.8378915599439669m 0.15595683529293122m" 
-      data-visibility-attribute="visible" 
-      data-title="Tyres" 
-      data-description="19-inch Diamond-cut Graphene Alloy wheels (airless, self-sealing, magnetic levitation).">
-      <div class="HotspotAnnotation">Tyres</div>
-    </button>
-
-    <button class="Hotspot" 
-      slot="hotspot-4"
-      data-position="0.08555671925668895m 1.316307781640377m -1.9664828641073007m" 
-      data-normal="0.010006396645117367m 0.9927707036953178m -0.1196085361104477m" 
-      data-visibility-attribute="visible" 
-      data-title="Speed" 
-      data-description="100 km/r within 1.45 seconds. Governed Speed 350km/h">
-      <div class="HotspotAnnotation">Speed</div>
-    </button>
-
-    <button class="Hotspot" 
-      slot="hotspot-5" 
-      data-position="-0.1819589114957214m 1.9816244770250495m 0.26479836268620427m" 
-      data-normal="-0.02959233215327415m 0.9942860855126491m -0.10256448719544028m" 
-      data-visibility-attribute="visible" 
-      data-title="WindowsElectro" 
-      data-description="Chromic Smart Glass serves as a full Augmented Reality HUD.">
-      <div class="HotspotAnnotation">WindowsElectro</div>
-    </button>
-
-    <button class="Hotspot" 
-      slot="hotspot-6" 
-      data-position="-0.026758096050141084m 0.9639880037994947m 2.5179298326685178m" 
-      data-normal="-0.0075662832498763054m -0.0010722259778223984m 0.9999708004183098m" 
-      data-visibility-attribute="visible" 
-      data-title="Mileage" 
-      data-description="Perpetual Range (Effectively Infinite)">
-      <div class="HotspotAnnotation">Mileage</div>
-    </button>
-
-    <button class="Hotspot" 
-      slot="hotspot-7" 
-      data-position="1.0140414410935739m 1.1741242531324094m 0.9727303427697893m" 
-      data-normal="0.9613706407267112m 0.26095995008274536m -0.0875579556723677m" 
-      data-visibility-attribute="visible" 
-      data-title="Engine Tri-Core" 
-      data-description="Quantum Fusion Drive (QFD): Zero-emission, silent power.">
-      <div class="HotspotAnnotation">Engine Tri-Core</div>
-    </button>
-
-    <button class="Hotspot" 
-      slot="hotspot-8" 
-      data-position="1.0140414789387980m 1.1741467829189032m 0.9727303427697893m" 
-      data-normal="0.9613706407267112m 0.26095995008274536m -0.0875579556723677m" 
-      data-visibility-attribute="visible" 
-      data-title="Key Technology" 
-      data-description="Omni-Pilot AI and Bio-Lock interior (adapts to occupant comfort).">
-      <div class="HotspotAnnotation">Key Technology</div>
-    </button>
-    <!-- ANNOTATIONS END -->
+    
+    <!-- DOT HOTSPOTS -->
+    <button class="Hotspot" slot="hotspot-1" data-title="Open Doors" data-description="Tap to open doors animation"></button>
+    <button class="Hotspot" slot="hotspot-2" data-title="Tyres" data-description="19-inch Diamond-cut Graphene Alloy wheels"></button>
+    <button class="Hotspot" slot="hotspot-3" data-title="Speed" data-description="0-100km/h in 1.4s, top speed 350km/h"></button>
+    <button class="Hotspot" slot="hotspot-4" data-title="Windows" data-description="Chromic Smart Glass Augmented HUD"></button>
+    <button class="Hotspot" slot="hotspot-5" data-title="Mileage" data-description="Infinite range with Quantum engine"></button>
+    <button class="Hotspot" slot="hotspot-6" data-title="Engine" data-description="Quantum Fusion Drive, Zero emissions"></button>
   </model-viewer>
 
-  <!-- CONTROLS PANEL -->
+  <!-- CONTROL PANEL -->
   <div class="controls-panel">
     <button id="modeSwitch" class="mode-btn">Switch to Tyre Mode</button>
 
-    <!-- Color Controls -->
     <div id="colorControls">
       <h4>Body Color</h4>
       <div class="button-list">
@@ -130,7 +91,6 @@
       </div>
     </div>
 
-    <!-- Tyre Controls -->
     <div id="tyreControls" style="display:none;">
       <h4>Tyres</h4>
       <div class="button-list">
@@ -140,55 +100,20 @@
     </div>
   </div>
 
-  <!-- INFO PANEL -->
-  <div id="info-panel">
-    <h3 id="panel-title"></h3>
-    <p id="panel-content"></p>
-    <button id="close-panel">Close</button>
-  </div>
-
   <script>
-    // INFO PANEL LOGIC
-    document.addEventListener('DOMContentLoaded', () => {
-      const infoPanel = document.getElementById('info-panel');
-      const panelTitle = document.getElementById('panel-title');
-      const panelContent = document.getElementById('panel-content');
-      const closeButton = document.getElementById('close-panel');
-
-      const hotspots = document.querySelectorAll('.Hotspot');
-      hotspots.forEach(hotspot => {
-        hotspot.addEventListener('click', (event) => {
-          event.preventDefault();
-          const title = hotspot.getAttribute('data-title');
-          const description = hotspot.getAttribute('data-description');
-          if (title && description) {
-            panelTitle.textContent = title;
-            panelContent.textContent = description;
-            infoPanel.style.display = 'block';
-          }
-        });
-      });
-
-      closeButton.addEventListener('click', () => {
-        infoPanel.style.display = 'none';
-      });
-    });
-
     const modelViewer = document.querySelector('#car-viewer');
 
-    // DOOR ANIMATION
-    const doorHotspot = modelViewer.querySelector('button[slot="hotspot-2"]');
-    doorHotspot.addEventListener('click', () => {
-      modelViewer.currentTime = 0;
-      modelViewer.animationName = 'doorsOpeningAction';
-      modelViewer.play();
-      const durationInSeconds = modelViewer.duration;
-      if (durationInSeconds > 0) {
-        setTimeout(() => { modelViewer.pause(); }, durationInSeconds * 1000);
-      }
+    // Hotspot logic
+    document.querySelectorAll('.Hotspot').forEach(hotspot => {
+      hotspot.addEventListener('click', () => {
+        // toggle active state
+        document.querySelectorAll('.Hotspot').forEach(h => h.classList.remove('active'));
+        hotspot.classList.add('active');
+        alert(`${hotspot.dataset.title}: ${hotspot.dataset.description}`);
+      });
     });
 
-    // COLOR/TYRE SWITCHER
+    // Color/Tyre Mode logic
     const modeSwitch = document.getElementById('modeSwitch');
     const colorControls = document.getElementById('colorControls');
     const tyreControls = document.getElementById('tyreControls');
