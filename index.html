@@ -19,6 +19,7 @@
             background: rgba(255,255,255,0.9); border-radius: 12px;
             padding: 15px; display: flex; flex-direction: column;
             align-items: center; gap: 15px;
+            z-index: 11; /* Ensure controls are above the AR panel */
         }
         .button-list { display: flex; gap: 10px; }
         .color-selector {
@@ -31,7 +32,7 @@
         }
         .tyre-btn { background: #007bff; }
         .mode-btn { background: #28a745; }
-        /* Style for the Hotspot info panel from the first file (assuming style.css doesn't contain it) */
+        /* Style for the Hotspot info panel from the first file */
         #info-panel {
             display: none; /* Initially hidden */
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -136,16 +137,16 @@
             <div id="colorControls">
                 <h4>Body Color</h4>
                 <div class="button-list">
-                    <button class="color-selector" data-model="futuristic pink.glb" style="background:pink;"></button>
-                    <button class="color-selector" data-model="futuristic blue.glb" style="background:blue;"></button>
-                    <button class="color-selector" data-model="futuristic green.glb" style="background:green;"></button>
+                    <button class="color-selector" data-model="Pink futuristic real.glb" style="background:pink;"></button>
+                    <button class="color-selector" data-model="Blue futuristic car real size.glb" style="background:blue;"></button>
+                    <button class="color-selector" data-model="Green futuristic real.glb" style="background:green;"></button>
                 </div>
             </div>
 
             <div id="tyreControls" style="display:none;">
                 <h4>Tyres</h4>
                 <div class="button-list">
-                    <button class="tyre-btn" data-model="futuristic blue.glb">Style 1</button>
+                    <button class="tyre-btn" data-model="Blue futuristic car real size.glb">Style 1</button>
                     <button class="tyre-btn" data-model="Blue futuristic tyre 2.glb">Style 2</button>
                 </div>
             </div>
@@ -154,10 +155,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Get the model viewer element (ID reconciled to 'car-model' from file 2)
+            // Get the model viewer element
             const modelViewer = document.getElementById('car-model');
 
-            // --- Hotspot and Animation Logic (from file 1) ---
+            // --- Hotspot and Animation Logic ---
 
             const infoPanel = document.getElementById('info-panel');
             const panelTitle = document.getElementById('panel-title');
@@ -204,7 +205,7 @@
             });
 
 
-            // --- Customization Logic (from file 2) ---
+            // --- Customization Logic ---
 
             const modeSwitch = document.getElementById('modeSwitch');
             const colorControls = document.getElementById('colorControls');
@@ -231,7 +232,6 @@
                 document.querySelectorAll(selector).forEach(button => {
                     button.addEventListener('click', () => {
                         const modelFile = button.getAttribute('data-model');
-                        // IMPORTANT: The model file from the customization controls overrides the main model file
                         if (modelFile) modelViewer.src = modelFile;
                     });
                 });
