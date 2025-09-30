@@ -39,7 +39,9 @@
       alt="A 3D model of a car"
       ar
       ar-modes="webxr scene-viewer quick-look"
+      ar-placement="floor"
       ar-scale="fixed"
+      scale="4.2 1.5 1.7"
       shadow-intensity="1"
       camera-controls
       auto-rotate>
@@ -96,7 +98,11 @@
       document.querySelectorAll(selector).forEach(button => {
         button.addEventListener('click', () => {
           const modelFile = button.getAttribute('data-model');
-          if (modelFile) modelViewer.src = modelFile;
+          if (modelFile) {
+            modelViewer.src = modelFile;
+            // Keep the same fixed scale for every model
+            modelViewer.setAttribute('scale', '4.2 1.5 1.7');
+          }
         });
       });
     }
