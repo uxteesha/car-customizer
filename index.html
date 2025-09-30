@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR Car Customizer with Hotspots</title>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+  <title>AR Car Customizer</title>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
   <style>
     body, html {
       margin: 0; padding: 0; height: 100%; width: 100%;
@@ -12,8 +12,6 @@
     }
     .viewer-container { width: 100%; height: 100%; position: relative; }
     model-viewer { width: 100%; height: 100%; }
-
-    /* Control panel */
     .controls-panel {
       position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
       background: rgba(255,255,255,0.9); border-radius: 12px;
@@ -31,72 +29,22 @@
     }
     .tyre-btn { background: #007bff; }
     .mode-btn { background: #28a745; }
-
-    /* Hotspot annotations styled as dots */
-    .HotspotAnnotation {
-      background: #007bff;
-      border-radius: 50%;
-      width: 14px;
-      height: 14px;
-      border: 2px solid white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    }
   </style>
 </head>
 <body>
   <div class="viewer-container">
     <model-viewer
       id="car-model"
-      src="Pink futuristic real.glb"
+      src="futuristic pink.glb"
       alt="A 3D model of a car"
       ar
       ar-modes="webxr scene-viewer quick-look"
-      ar-placement="floor"
       ar-scale="fixed"
       shadow-intensity="1"
       camera-controls
-      auto-rotate
-      xr-environment
-      disable-pan>
-      
-      <!-- Hotspots -->
-      <button class="Hotspot" slot="hotspot-1"
-        data-position="-1.0129m 0.4496m -1.8568m"
-        data-normal="-0.52m 0.83m 0.15m"
-        data-visibility-attribute="visible">
-        <div class="HotspotAnnotation"></div>
-      </button>
-
-      <button class="Hotspot" slot="hotspot-2"
-        data-position="0.0855m 1.3163m -1.9664m"
-        data-normal="0.01m 0.99m -0.11m"
-        data-visibility-attribute="visible">
-        <div class="HotspotAnnotation"></div>
-      </button>
-
-      <button class="Hotspot" slot="hotspot-3"
-        data-position="-0.18m 1.98m 0.26m"
-        data-normal="-0.02m 0.99m -0.10m"
-        data-visibility-attribute="visible">
-        <div class="HotspotAnnotation"></div>
-      </button>
-
-      <button class="Hotspot" slot="hotspot-4"
-        data-position="-0.02m 0.96m 2.51m"
-        data-normal="-0.007m -0.001m 0.99m"
-        data-visibility-attribute="visible">
-        <div class="HotspotAnnotation"></div>
-      </button>
-
-      <button class="Hotspot" slot="hotspot-5"
-        data-position="1.014m 1.17m 0.97m"
-        data-normal="0.96m 0.26m -0.08m"
-        data-visibility-attribute="visible">
-        <div class="HotspotAnnotation"></div>
-      </button>
+      auto-rotate>
     </model-viewer>
 
-    <!-- Controls -->
     <div class="controls-panel">
       <button id="modeSwitch" class="mode-btn">Switch to Tyre Mode</button>
 
@@ -104,9 +52,9 @@
       <div id="colorControls">
         <h4>Body Color</h4>
         <div class="button-list">
-          <button class="color-selector" data-model="Pink futuristic real.glb" style="background:pink;"></button>
-          <button class="color-selector" data-model="Blue futuristic car real size.glb" style="background:blue;"></button>
-          <button class="color-selector" data-model="Green futuristic real.glb" style="background:green;"></button>
+          <button class="color-selector" data-model="futuristic pink.glb" style="background:pink;"></button>
+          <button class="color-selector" data-model="futuristic blue.glb" style="background:blue;"></button>
+          <button class="color-selector" data-model="futuristic green.glb" style="background:green;"></button>
         </div>
       </div>
 
@@ -114,7 +62,7 @@
       <div id="tyreControls" style="display:none;">
         <h4>Tyres</h4>
         <div class="button-list">
-          <button class="tyre-btn" data-model="Blue futuristic car real size.glb">Style 1</button>
+          <button class="tyre-btn" data-model="futuristic blue.glb">Style 1</button>
           <button class="tyre-btn" data-model="Blue futuristic tyre 2.glb">Style 2</button>
         </div>
       </div>
@@ -143,7 +91,7 @@
       }
     });
 
-    // Handle model switching
+    // Handle button clicks
     function attachHandlers(selector) {
       document.querySelectorAll(selector).forEach(button => {
         button.addEventListener('click', () => {
