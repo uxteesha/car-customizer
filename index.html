@@ -1,49 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AR Car Customizer — Hotspots & Animation</title>
-
-  <!-- model-viewer -->
+  <title>AR Car Customizer with Hotspots & Animation</title>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-
   <style>
-    html,body{height:100%;margin:0;background:#f0f0f0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;}
-    .viewer-container{position:relative;width:100%;height:100vh;overflow:hidden}
+    html,body{height:100%;margin:0;background:#f0f0f0;font-family:sans-serif;}
+    .viewer-container{position:relative;width:100%;height:100vh;}
     model-viewer{width:100%;height:100%}
 
     /* Controls */
     .controls-panel{
-      position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+      position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
       background:rgba(255,255,255,0.92);padding:12px 14px;border-radius:12px;
-      box-shadow:0 6px 20px rgba(0,0,0,0.12);display:flex;flex-direction:column;gap:12px;align-items:center;
+      display:flex;flex-direction:column;gap:12px;align-items:center;
     }
-    .button-list{display:flex;gap:10px;align-items:center}
-    .color-selector{width:44px;height:44px;border-radius:50%;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.12)}
+    .button-list{display:flex;gap:10px;}
+    .color-selector{width:40px;height:40px;border-radius:50%;border:2px solid #fff;cursor:pointer;}
     .mode-btn,.tyre-btn{padding:8px 14px;border-radius:8px;border:0;cursor:pointer;font-weight:600;color:#fff}
     .mode-btn{background:#28a745}
     .tyre-btn{background:#007bff}
 
-    /* Hotspot look */
-    .Hotspot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;outline:none;border:2px solid #fff;background:rgba(0,123,255,0.9)}
-    .HotspotAnnotation{font-size:13px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.95);color:#222;font-weight:700}
-
-    /* Info panel */
-    #info-panel{display:none;position:absolute;top:18px;right:18px;background:#fff;padding:14px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);max-width:300px}
-    #info-panel h3{margin:0 0 6px;font-size:16px}
-    #info-panel p{margin:0;color:#333;font-size:14px}
-    #close-panel{margin-top:10px;padding:6px 10px;border-radius:8px;border:0;background:#007bff;color:#fff;cursor:pointer}
+    /* Hotspot dots + labels */
+    .Hotspot{
+      width:16px;height:16px;border-radius:50%;border:2px solid white;
+      background:rgba(0,123,255,0.9);cursor:pointer;
+    }
+    .HotspotAnnotation{
+      background:rgba(255,255,255,0.95);color:#222;
+      padding:4px 6px;border-radius:6px;font-size:13px;font-weight:600;
+      display:none; /* hidden by default */
+      white-space:nowrap;
+    }
+    .Hotspot.show .HotspotAnnotation{display:block;}
   </style>
 </head>
 <body>
   <div class="viewer-container">
 
-    <!-- MODEL VIEWER: default is Pink futuristic real.glb -->
+    <!-- MODEL VIEWER -->
     <model-viewer
       id="car-viewer"
       src="Pink futuristic real.glb"
-      poster="assets/poster.png"
       alt="Futuristic Car"
       ar
       ar-modes="webxr scene-viewer quick-look"
@@ -55,90 +54,49 @@
       camera-controls
       auto-rotate
       xr-environment
-      disable-pan
-      style="background:transparent;">
+      disable-pan>
 
-      <!-- --- door hotspot (uses data-surface in your original) --- -->
-      <button class="Hotspot" slot="hotspot-2"
-        data-surface="79 0 2387 905 2388 0.265 0.158 0.577"
-        data-visibility-attribute="visible">
+      <!-- Door Hotspot (triggers animation) -->
+      <button class="Hotspot" slot="hotspot-2">
         <div class="HotspotAnnotation">Open Doors</div>
       </button>
 
-      <!-- --- Tyres hotspot (positions/normals copied exactly from your earlier code) --- -->
-      <button class="Hotspot" slot="hotspot-3"
-        data-position="-1.0129080117791056m 0.4496240760795325m -1.8568594526380542m"
-        data-normal="-0.5230824020171959m 0.8378915599439669m 0.15595683529293122m"
-        data-visibility-attribute="visible"
-        data-title="Tyres"
-        data-description="19-inch Diamond-cut Graphene Alloy wheels (airless, self-sealing, magnetic levitation).">
-        <div class="HotspotAnnotation">Tyres</div>
+      <!-- Other Hotspots -->
+      <button class="Hotspot" slot="hotspot-3">
+        <div class="HotspotAnnotation">Tyres: 19-inch Graphene Alloy</div>
       </button>
 
-      <button class="Hotspot" slot="hotspot-4"
-        data-position="0.08555671925668895m 1.316307781640377m -1.9664828641073007m"
-        data-normal="0.010006396645117367m 0.9927707036953178m -0.1196085361104477m"
-        data-visibility-attribute="visible"
-        data-title="Speed"
-        data-description="100 km/r within 1.45 seconds. Governed Speed 350km/h">
-        <div class="HotspotAnnotation">Speed</div>
+      <button class="Hotspot" slot="hotspot-4">
+        <div class="HotspotAnnotation">Speed: 0-100 in 1.45s</div>
       </button>
 
-      <button class="Hotspot" slot="hotspot-5"
-        data-position="-0.1819589114957214m 1.9816244770250495m 0.26479836268620427m"
-        data-normal="-0.02959233215327415m 0.9942860855126491m -0.10256448719544028m"
-        data-visibility-attribute="visible"
-        data-title="WindowsElectro"
-        data-description="Chromic Smart Glass serves as a full Augmented Reality HUD.">
-        <div class="HotspotAnnotation">WindowsElectro</div>
+      <button class="Hotspot" slot="hotspot-5">
+        <div class="HotspotAnnotation">WindowsElectro: Smart Glass AR HUD</div>
       </button>
 
-      <button class="Hotspot" slot="hotspot-6"
-        data-position="-0.026758096050141084m 0.9639880037994947m 2.5179298326685178m"
-        data-normal="-0.0075662832498763054m -0.0010722259778223984m 0.9999708004183098m"
-        data-visibility-attribute="visible"
-        data-title="Mileage"
-        data-description="Perpetual Range (Effectively Infinite)">
-        <div class="HotspotAnnotation">Mileage</div>
+      <button class="Hotspot" slot="hotspot-6">
+        <div class="HotspotAnnotation">Mileage: Perpetual Range</div>
       </button>
 
-      <button class="Hotspot" slot="hotspot-7"
-        data-position="1.0140414410935739m 1.1741242531324094m 0.9727303427697893m"
-        data-normal="0.9613706407267112m 0.26095995008274536m -0.0875579556723677m"
-        data-visibility-attribute="visible"
-        data-title="Engine Tri-Core"
-        data-description="Quantum Fusion Drive (QFD): Zero-emission, silent power.">
-        <div class="HotspotAnnotation">Engine Tri-Core</div>
+      <button class="Hotspot" slot="hotspot-7">
+        <div class="HotspotAnnotation">Engine Tri-Core: Quantum Fusion Drive</div>
       </button>
 
-      <button class="Hotspot" slot="hotspot-8"
-        data-position="1.0140414789387980m 1.1741467829189032m 0.9727303427697893m"
-        data-normal="0.9613706407267112m 0.26095995008274536m -0.0875579556723677m"
-        data-visibility-attribute="visible"
-        data-title="Key Technology"
-        data-description="Omni-Pilot AI and Bio-Lock interior (adapts to occupant comfort).">
-        <div class="HotspotAnnotation">Key Technology</div>
+      <button class="Hotspot" slot="hotspot-8">
+        <div class="HotspotAnnotation">Key Tech: Omni-Pilot AI & Bio-Lock</div>
       </button>
-
     </model-viewer>
 
-    <!-- Info panel -->
-    <div id="info-panel">
-      <h3 id="panel-title"></h3>
-      <p id="panel-content"></p>
-      <button id="close-panel">Close</button>
-    </div>
-
     <!-- Controls -->
-    <div class="controls-panel" role="region" aria-label="controls">
+    <div class="controls-panel">
       <button id="modeSwitch" class="mode-btn">Switch to Tyre Mode</button>
 
       <div id="colorControls">
         <strong>Body Color</strong>
         <div class="button-list">
-          <button class="color-selector" data-model="Pink futuristic real.glb" style="background:pink" title="Pink"></button>
-          <button class="color-selector" data-model="Blue futuristic car real size.glb" style="background:blue" title="Blue"></button>
-          <button class="color-selector" data-model="Green futuristic real.glb" style="background:green" title="Green"></button>
+          <button class="color-selector" data-model="Pink futuristic real.glb" style="background:pink"></button>
+          <button class="color-selector" data-model="Blue futuristic car real size.glb" style="background:blue"></button>
+          <button class="color-selector" data-model="Green futuristic real.glb" style="background:green"></button>
         </div>
       </div>
 
@@ -153,14 +111,13 @@
   </div>
 
   <script>
-    // Elements
     const modelViewer = document.getElementById('car-viewer');
     const modeSwitch = document.getElementById('modeSwitch');
     const colorControls = document.getElementById('colorControls');
     const tyreControls = document.getElementById('tyreControls');
-
-    // Mode switcher
     let currentMode = 'color';
+
+    // 🔹 Mode switcher
     modeSwitch.addEventListener('click', () => {
       if (currentMode === 'color') {
         currentMode = 'tyre';
@@ -175,83 +132,41 @@
       }
     });
 
-    // Swap models (colors / tyres)
+    // 🔹 Handle button clicks for colors/tyres
     function attachHandlers(selector) {
       document.querySelectorAll(selector).forEach(button => {
         button.addEventListener('click', () => {
           const modelFile = button.getAttribute('data-model');
-          if (!modelFile) return;
-          console.log('Loading model:', modelFile);
-          modelViewer.src = modelFile;
-          // keep uniform scale
-          modelViewer.setAttribute('scale', '1 1 1');
+          if (modelFile) {
+            modelViewer.src = modelFile;
+            modelViewer.setAttribute('scale','1 1 1');
+          }
         });
       });
     }
     attachHandlers('.color-selector');
     attachHandlers('.tyre-btn');
 
-    // Info panel (hotspots)
-    const infoPanel = document.getElementById('info-panel');
-    const panelTitle = document.getElementById('panel-title');
-    const panelContent = document.getElementById('panel-content');
-    const closeBtn = document.getElementById('close-panel');
-
-    function onHotspotClick(evt) {
-      // some hotspots in your original markup didn't have title/description; guard it
-      const target = evt.currentTarget;
-      const t = target.getAttribute('data-title') || 'Info';
-      const d = target.getAttribute('data-description') || 'No description available.';
-      panelTitle.textContent = t;
-      panelContent.textContent = d;
-      infoPanel.style.display = 'block';
-    }
-
-    // attach to all hotspots (class "Hotspot")
-    document.querySelectorAll('.Hotspot').forEach(h => {
-      h.addEventListener('click', onHotspotClick);
+    // 🔹 Hotspot toggle (dot → label)
+    document.querySelectorAll('.Hotspot').forEach(hotspot=>{
+      hotspot.addEventListener('click',()=>{
+        hotspot.classList.toggle('show');
+      });
     });
 
-    closeBtn.addEventListener('click', () => {
-      infoPanel.style.display = 'none';
-    });
-
-    // Door hotspot animation trigger
-    // (slot="hotspot-2") — use the same name you had
+    // 🔹 Door hotspot animation trigger
     const doorHotspot = modelViewer.querySelector('button[slot="hotspot-2"]');
-    if (doorHotspot) {
-      doorHotspot.addEventListener('click', (ev) => {
-        // If this hotspot also opens the info panel, we want both behaviors possible.
-        // Trigger the animation baked into the GLB.
-        try {
-          modelViewer.currentTime = 0;
-          modelViewer.animationName = 'doorsOpeningAction'; // ensure this matches your GLB's animation name
-          modelViewer.play();
-
-          // If duration is available, stop after it finishes
-          const durationSec = modelViewer.duration || 0;
-          if (durationSec > 0) {
-            setTimeout(() => { modelViewer.pause(); }, durationSec * 1000);
-          }
-        } catch (err) {
-          console.warn('Animation trigger error:', err);
+    if (doorHotspot){
+      doorHotspot.addEventListener('click',()=>{
+        modelViewer.currentTime = 0;
+        modelViewer.animationName = 'doorsOpeningAction'; // must match your GLB animation
+        modelViewer.play();
+        const duration = modelViewer.duration || 0;
+        if (duration>0){
+          setTimeout(()=>{ modelViewer.pause(); }, duration*1000);
         }
       });
     }
-
-    // Helpful error logging for model load issues
-    modelViewer.addEventListener('error', (e) => {
-      console.error('model-viewer error event:', e);
-      // show brief overlay so you (or faculty) know something failed
-      panelTitle.textContent = 'Model load error';
-      panelContent.textContent = 'Check console/network: failed to load the GLB or asset paths.';
-      infoPanel.style.display = 'block';
-    });
-
-    // optional: confirm when model is ready
-    modelViewer.addEventListener('load', () => {
-      console.log('Model loaded:', modelViewer.src);
-    });
   </script>
 </body>
 </html>
