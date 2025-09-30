@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Car Customizer with Hotspots & Animation</title>
+    <title>AR Car Customizer with Hotspots & Animation (Fixed)</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
         body, html {
@@ -13,7 +13,7 @@
         .viewer-container { width: 100%; height: 100%; position: relative; }
         model-viewer { width: 100%; height: 100%; }
 
-        /* Customization Controls Panel Styles (from File 2) */
+        /* Customization Controls Panel Styles */
         .controls-panel {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: rgba(255,255,255,0.9); border-radius: 12px;
@@ -33,7 +33,7 @@
         .tyre-btn { background: #007bff; }
         .mode-btn { background: #28a745; }
 
-        /* Hotspot Info Panel Styles (from File 1) */
+        /* Hotspot Info Panel Styles */
         #info-panel {
             display: none; /* Initially hidden */
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -43,9 +43,39 @@
         #close-panel {
             margin-top: 10px; padding: 5px 10px; cursor: pointer;
         }
-        /* Style for the Open Doors button/annotation (optional, assuming 'Hotspots' class exists in your style.css) */
-        .HotspotAnnotations {
-             /* Add styles for your animation button label here if needed */
+        
+        /* FIX: Hide hotspot annotation text, make it a dot */
+        .Hotspot {
+            background: #fff; /* White background for the dot */
+            border: 2px solid #007bff; /* Blue border */
+            border-radius: 50%;
+            width: 20px; /* Size of the dot */
+            height: 20px; /* Size of the dot */
+            display: flex; /* Flexbox for centering */
+            align-items: center; /* Center content vertically */
+            justify-content: center; /* Center content horizontally */
+            padding: 0; /* Remove padding */
+            cursor: pointer;
+        }
+        .HotspotAnnotations, .HotspotAnnotation {
+            display: none; /* Hide the text within the hotspot buttons */
+        }
+
+        /* Adjustments for the door button if it also has .Hotspots class */
+        .Hotspots { /* Assuming this is for your "Open Doors" button */
+            background: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #333;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            /* Ensure the text is visible for the door button */
+            display: block; /* Make it block to take space */
+        }
+        .Hotspots .HotspotAnnotations {
+            display: block; /* Show text for the door button specifically */
         }
     </style>
 </head>
@@ -76,8 +106,7 @@
             data-visibility-attribute="visible" 
             data-title="Tyres" 
             data-description="19-inch Diamond-cut Graphene Alloy wheels (airless, self-sealing, magnetic levitation).">
-                <div class="HotspotAnnotation">Tyres</div>
-            </button>
+                <div class="HotspotAnnotation"></div> </button>
 
             <button class="Hotspot" 
             slot="hotspot-4"
@@ -86,7 +115,7 @@
             data-visibility-attribute="visible" 
             data-title="Speed" 
             data-description="100 km/r within 1.45 seconds. Governed Speed 350km/h">
-                <div class="HotspotAnnotation">Speed</div>
+                <div class="HotspotAnnotation"></div>
             </button>
 
             <button class="Hotspot" 
@@ -96,7 +125,7 @@
             data-visibility-attribute="visible" 
             data-title="WindowsElectro" 
             data-description="Chromic Smart Glass serves as a full Augmented Reality HUD.">
-                <div class="HotspotAnnotation">WindowsElectro</div>
+                <div class="HotspotAnnotation"></div>
             </button>
 
             <button class="Hotspot" 
@@ -106,7 +135,7 @@
             data-visibility-attribute="visible" 
             data-title="Mileage" 
             data-description="Perpetual Range (Effectively Infinite)">
-                <div class="HotspotAnnotation">Mileage</div>
+                <div class="HotspotAnnotation"></div>
             </button>
 
             <button class="Hotspot" 
@@ -116,17 +145,16 @@
             data-visibility-attribute="visible" 
             data-title="Engine Tri-Core" 
             data-description="Quantum Fusion Drive (QFD): Zero-emission, silent power.">
-                <div class="HotspotAnnotation">Engine Tri-Core</div>
+                <div class="HotspotAnnotation"></div>
             </button>
 
             <button class="Hotspot" 
-            slot="hotspot-7" 
-            data-position="1.0140414789387980m 1.1741467829189032m 0.9727303427697893m" 
+            slot="hotspot-8"  data-position="1.0140414789387980m 1.1741467829189032m 0.9727303427697893m" 
             data-normal="0.9613706407267112m 0.26095995008274536m -0.0875579556723677m" 
             data-visibility-attribute="visible" 
             data-title="Key Technology" 
             data-description="Omni-Pilot AI and Bio-Lock interior (adapts to occupant comfort).">
-                <div class="HotspotAnnotation">Key Technology</div>
+                <div class="HotspotAnnotation"></div>
             </button>
             </model-viewer>
         
@@ -161,7 +189,7 @@
     <script>
         const modelViewer = document.getElementById('car-model');
         
-        // --- Customization Logic (from File 2) ---
+        // --- Customization Logic ---
         const modeSwitch = document.getElementById('modeSwitch');
         const colorControls = document.getElementById('colorControls');
         const tyreControls = document.getElementById('tyreControls');
@@ -190,6 +218,9 @@
                     if (modelFile) {
                         modelViewer.src = modelFile;
                         modelViewer.setAttribute('scale', '1 1 1'); // uniform scale
+                        // When model changes, you might want to reset the animation state
+                        // or ensure the hotspots are correctly positioned for the new model.
+                        // For now, we're just changing the model.
                     }
                 });
             });
@@ -197,7 +228,7 @@
         attachHandlers('.color-selector');
         attachHandlers('.tyre-btn');
         
-        // --- Hotspot and Animation Logic (from File 1) ---
+        // --- Hotspot and Animation Logic ---
         
         document.addEventListener('DOMContentLoaded', () => {
             const infoPanel = document.getElementById('info-panel');
@@ -206,7 +237,7 @@
             const closeButton = document.getElementById('close-panel');
 
             // Hotspot click handling to show the info panel
-            const hotspots = document.querySelectorAll('.Hotspot');
+            const hotspots = document.querySelectorAll('.Hotspot'); // Selects the dot hotspots
             hotspots.forEach(hotspot => {
                 hotspot.addEventListener('click', (event) => {
                     event.preventDefault();
@@ -220,7 +251,7 @@
                     infoPanel.style.display = 'block';
                 });
             });
-
+            
             // Close panel button
             closeButton.addEventListener('click', () => {
                 infoPanel.style.display = 'none';
@@ -229,21 +260,46 @@
             // Door animation logic
             const doorHotspot = modelViewer.querySelector('button[slot="hotspot-2"]');
 
-            doorHotspot.addEventListener('click', () => {
-                // NOTE: This animation name ('doorsOpeningAction') must exist in your GLB file!
-                modelViewer.currentTime = 0;
-                modelViewer.animationName = 'doorsOpeningAction';
-                modelViewer.play();
+            // Listen for the 'load' event of the model-viewer to ensure the model and its animations are ready.
+            // This is crucial if you are dynamically changing models.
+            modelViewer.addEventListener('load', () => {
+                // Check if the current model has the 'doorsOpeningAction' animation
+                const availableAnimations = modelViewer.availableAnimations;
+                const hasDoorAnimation = availableAnimations.includes('doorsOpeningAction');
 
-                const durationInSeconds = modelViewer.duration;
-
-                // Manually pause the animation after its duration has passed
-                if (durationInSeconds > 0) {
-                    setTimeout(() => {
-                        modelViewer.pause();
-                    }, durationInSeconds * 1000);
+                if (!hasDoorAnimation) {
+                    console.warn("Current model does NOT have 'doorsOpeningAction' animation. Door button might not work.");
+                    // Optionally disable or hide the door hotspot if the animation isn't present
+                    // if (doorHotspot) doorHotspot.style.display = 'none'; 
+                } else {
+                    // if (doorHotspot) doorHotspot.style.display = 'block'; // Ensure visible if it was hidden
                 }
             });
+
+            // Attach click listener for the door hotspot
+            if (doorHotspot) {
+                doorHotspot.addEventListener('click', () => {
+                    // It's good practice to re-check if the animation is available,
+                    // especially if models can be swapped.
+                    const availableAnimations = modelViewer.availableAnimations;
+                    if (availableAnimations.includes('doorsOpeningAction')) {
+                        modelViewer.currentTime = 0;
+                        modelViewer.animationName = 'doorsOpeningAction';
+                        modelViewer.play();
+
+                        const durationInSeconds = modelViewer.duration;
+
+                        if (durationInSeconds > 0) {
+                            setTimeout(() => {
+                                modelViewer.pause();
+                            }, durationInSeconds * 1000);
+                        }
+                    } else {
+                        alert("Door opening animation not available for this model.");
+                        console.warn("Attempted to play 'doorsOpeningAction' but it's not available.");
+                    }
+                });
+            }
         });
     </script>
 </body>
