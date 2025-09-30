@@ -39,8 +39,11 @@
       alt="A 3D model of a car"
       ar
       ar-modes="webxr scene-viewer quick-look"
+      ar-placement="floor"
       ar-scale="fixed"
+      scale="1 1 1"
       shadow-intensity="1"
+      shadow-softness="0.8"
       camera-controls
       auto-rotate>
     </model-viewer>
@@ -53,7 +56,7 @@
         <h4>Body Color</h4>
         <div class="button-list">
           <button class="color-selector" data-model="futuristic pink.glb" style="background:pink;"></button>
-          <button class="color-selector" data-model="futuristic blue.glb" style="background:blue;"></button>
+          <button class="color-selector" data-model="Blue futuristic car real size.glb" style="background:blue;"></button>
           <button class="color-selector" data-model="futuristic green.glb" style="background:green;"></button>
         </div>
       </div>
@@ -62,7 +65,7 @@
       <div id="tyreControls" style="display:none;">
         <h4>Tyres</h4>
         <div class="button-list">
-          <button class="tyre-btn" data-model="futuristic blue.glb">Style 1</button>
+          <button class="tyre-btn" data-model="Blue futuristic car real size.glb">Style 1</button>
           <button class="tyre-btn" data-model="Blue futuristic tyre 2.glb">Style 2</button>
         </div>
       </div>
@@ -96,7 +99,10 @@
       document.querySelectorAll(selector).forEach(button => {
         button.addEventListener('click', () => {
           const modelFile = button.getAttribute('data-model');
-          if (modelFile) modelViewer.src = modelFile;
+          if (modelFile) {
+            modelViewer.src = modelFile;
+            modelViewer.setAttribute('scale', '1 1 1'); // keep proportions
+          }
         });
       });
     }
@@ -105,3 +111,4 @@
   </script>
 </body>
 </html>
+
