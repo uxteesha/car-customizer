@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Exploded View</title>
+    <title>Interactive Exploded View - Multi-Animation</title>
     <!-- Use the latest model-viewer for robust animation and AR features -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
@@ -51,10 +51,10 @@
             box-shadow: none;
         }
 
-        /* --- Hotspot Dot Styles --- */
+        /* --- Hotspot Dot Styles (B Fix) --- */
         .Hotspot {
             background: #fff; 
-            border: 2px solid #ff4500; /* Orange border for visibility */
+            border: 2px solid #ff4500; 
             border-radius: 50%;
             width: 16px; 
             height: 16px; 
@@ -62,14 +62,15 @@
             padding: 0; 
             cursor: pointer;
             transition: opacity 0.3s;
-            opacity: 0; /* Initially hidden, shown when exploded */
+            opacity: 0; /* Initially hidden */
         }
         .Hotspot:hover {
             transform: scale(1.2);
             box-shadow: 0 0 5px rgba(255, 69, 0, 0.8);
         }
-        /* Hidden text inside the dots */
-        .HotspotAnnotation { display: none; }
+        .HotspotAnnotation { 
+            display: none; /* Hide the text inside the dot */
+        }
 
         /* --- Info Panel Styles --- */
         #info-panel {
@@ -109,7 +110,7 @@
         <model-viewer
             id="exploded-model"
             src="exploded.glb" 
-            alt="An exploded view of an engine component"
+            alt="An exploded view of a car model"
             camera-controls
             touch-action="pan-y"
             shadow-intensity="1"
@@ -119,37 +120,59 @@
             
             <!-- 
                 !!! IMPORTANT: ADJUST COORDINATES BELOW !!!
-                These must match the final, exploded position of each part within your 'exploded.glb' model.
-                Use model-viewer's developer tools to get precise positions.
+                You need to replace these placeholder coordinates (data-position) 
+                with the final, exploded position of each part within your 'exploded.glb' model.
+                
+                I've added some example data-titles corresponding to nodes found in your GLB file.
             -->
 
-            <!-- Hotspot 1: Main Casing (Example coordinates) -->
+            <!-- Hotspot 1: Upper Part (Roof/Glass) -->
             <button class="Hotspot" 
                 slot="hotspot-1" 
-                data-position="0.5m 0.2m 0.0m" 
-                data-normal="1m 0m 0m"
-                data-title="Main Engine Casing" 
-                data-description="The primary structural housing, made of reinforced titanium alloy.">
+                data-position="0.0m 1.8m 0.0m" 
+                data-normal="0m 1m 0m"
+                data-title="Upper Part (Roof/Glass)" 
+                data-description="Sliding roof assembly and smart glass panel.">
                 <div class="HotspotAnnotation"></div>
             </button>
 
-            <!-- Hotspot 2: Piston Assembly -->
+            <!-- Hotspot 2: Front Bonut -->
             <button class="Hotspot" 
                 slot="hotspot-2" 
-                data-position="-0.3m 0.4m 0.0m" 
-                data-normal="-0.8m 0.2m 0m"
-                data-title="Piston Assembly" 
-                data-description="Lightweight graphene pistons designed for high-RPM operation.">
+                data-position="0.0m 0.5m 2.0m" 
+                data-normal="0m 0m 1m"
+                data-title="Front Bonut / Hood" 
+                data-description="Lightweight access panel for utility systems.">
                 <div class="HotspotAnnotation"></div>
             </button>
             
-            <!-- Hotspot 3: Fuel Injector -->
+            <!-- Hotspot 3: Back Right Tyre -->
             <button class="Hotspot" 
                 slot="hotspot-3" 
-                data-position="0.0m 0.7m 0.3m" 
+                data-position="-1.5m 0.4m -2.5m" 
+                data-normal="-1m 0m 0m"
+                data-title="Back Right Tyre Assembly" 
+                data-description="Rear wheel unit with magnetic suspension.">
+                <div class="HotspotAnnotation"></div>
+            </button>
+
+             <!-- Hotspot 4: Interior / Dash -->
+            <button class="Hotspot" 
+                slot="hotspot-4" 
+                data-position="0.0m 1.0m 0.3m" 
                 data-normal="0m 1m 0m"
-                data-title="Quantum Fuel Injector" 
-                data-description="Utilizes high-frequency sonic waves for atomized fuel delivery.">
+                data-title="Interior Dashboard" 
+                data-description="Central control unit and cockpit display.">
+                <div class="HotspotAnnotation"></div>
+            </button>
+
+             <!-- Hotspot 5: Main Body/Chassis -->
+            <button class="Hotspot" 
+                slot="hotspot-5" 
+                data-position="0.0m 0.3m 0.0m" 
+                data-normal="0m 1m 0m"
+                data-title="Main Body Chassis" 
+                data-description="The core structural platform.">
                 <div class="HotspotAnnotation"></div>
             </button>
 
@@ -165,7 +188,6 @@
         <!-- Explode/Assemble Control -->
         <div class="controls-panel">
             <button id="explodeButton" class="control-button">Explode View</button>
-            <!-- Optional: AR button if model is suitable for AR -->
             <button id="arLaunchButton" class="control-button" style="background: #28a745;">Launch AR</button>
         </div>
     </div>
@@ -179,34 +201,35 @@
         const panelContent = document.getElementById('panel-content');
         const closeButton = document.getElementById('close-panel');
         
-        // Configuration
-        // !!! IMPORTANT: Verify this name matches the animation track in your 'exploded.glb' file.
-        const EXPLODE_ANIMATION_NAME = 'ExplodeAction'; 
+        // State tracking
         let isExploded = false;
 
-        // Function to toggle the explosion animation
+        // Function to handle the explosion/assembly animation
         const toggleExplosion = () => {
-            // Check if the model has the required animation
-            if (!modelViewer.availableAnimations.includes(EXPLODE_ANIMATION_NAME)) {
-                console.error(`Animation '${EXPLODE_ANIMATION_NAME}' not found in the model. Model-Viewer will still try to play it.`);
-                
-                // Show a non-disruptive warning message
-                panelTitle.textContent = "Animation Warning";
-                panelContent.textContent = "Explosion animation not found. Please check your GLB file's animation name.";
+            const availableAnimations = modelViewer.availableAnimations;
+            
+            if (availableAnimations.length === 0) {
+                panelTitle.textContent = "Error";
+                panelContent.textContent = "No animations found in the model!";
                 infoPanel.style.display = 'block';
-                setTimeout(() => infoPanel.style.display = 'none', 4000);
+                return;
             }
 
-            modelViewer.animationName = EXPLODE_ANIMATION_NAME;
-            modelViewer.currentTime = isExploded ? modelViewer.duration : 0; // Set starting point
-            modelViewer.timeScale = isExploded ? -1 : 1; // Reverse for reassemble, forward for explode
+            // A) Play ALL animations simultaneously by joining their names with commas
+            const allAnimations = availableAnimations.join(',');
+            modelViewer.animationName = allAnimations;
+
+            // B) Control the direction and playback
+            modelViewer.timeScale = isExploded ? -1 : 1; // Reverse for assemble, forward for explode
+            modelViewer.currentTime = isExploded ? modelViewer.duration : 0; // Set start point
             
+            // Play for a single time and clamp (stop) when finished
             modelViewer.play({ repetitions: 1, clampWhenFinished: true });
 
             isExploded = !isExploded;
             explodeButton.textContent = isExploded ? 'Assemble View' : 'Explode View';
             
-            // Show/hide hotspots based on explosion state
+            // C) Show/hide hotspots based on explosion state (Hotspot fix B)
             document.querySelectorAll('.Hotspot').forEach(hotspot => {
                 hotspot.style.opacity = isExploded ? 1 : 0;
             });
@@ -217,7 +240,7 @@
 
         // --- Event Listeners ---
         
-        // 1. Explode Button
+        // 1. Explode/Assemble Button
         explodeButton.addEventListener('click', toggleExplosion);
 
         // 2. AR Launch Button
@@ -230,7 +253,7 @@
             hotspot.addEventListener('click', (event) => {
                 event.preventDefault();
                 
-                // Only show info if the model is in the exploded state
+                // Only allow interaction if the model is fully exploded
                 if (isExploded) {
                     const title = hotspot.getAttribute('data-title');
                     const description = hotspot.getAttribute('data-description');
@@ -240,9 +263,15 @@
     
                     infoPanel.style.display = 'block';
                 } else {
-                    panelTitle.textContent = "Model Not Exploded";
-                    panelContent.textContent = "Click 'Explode View' first to interact with individual components.";
+                    panelTitle.textContent = "Interactive Mode Locked";
+                    panelContent.textContent = "Please click 'Explode View' first to interact with individual components.";
                     infoPanel.style.display = 'block';
+                    // Optional: Fade out message after 2 seconds
+                    setTimeout(() => {
+                        if (panelTitle.textContent === "Interactive Mode Locked") {
+                            infoPanel.style.display = 'none';
+                        }
+                    }, 2000);
                 }
             });
         });
@@ -252,15 +281,17 @@
             infoPanel.style.display = 'none';
         });
 
-        // Initial setup on load
+        // 5. Initial setup and logging
         document.addEventListener('DOMContentLoaded', () => {
-            // Hotspots are initially hidden by CSS
-            document.querySelectorAll('.Hotspot').forEach(hotspot => {
-                hotspot.style.opacity = 0;
-            });
+            // Hotspots start hidden by CSS, no change needed here.
             
             modelViewer.addEventListener('load', () => {
-                console.log('Model loaded. Available animations:', modelViewer.availableAnimations);
+                const animations = modelViewer.availableAnimations;
+                console.log(`Model 'exploded.glb' loaded. Found ${animations.length} animations.`);
+                // Log all available animations for user reference (helpful for debugging the ExplodeAction name if needed)
+                if (animations.length > 0) {
+                    console.log('Animations detected (all will be played together):', animations.join(', '));
+                }
             });
         });
     </script>
