@@ -42,7 +42,6 @@
     src="exploded.glb"
     camera-controls
     autoplay
-    ar
     shadow-intensity="1"
     alt="Exploded view model">
   </model-viewer>
@@ -59,32 +58,35 @@
     let animationName = null;
 
     viewer.addEventListener('load', () => {
-      // Get the first animation name if multiple exist
+      console.log("✅ Model loaded");
+
       if (viewer.availableAnimations && viewer.availableAnimations.length > 0) {
-        animationName = viewer.availableAnimations[0];
+        console.log("🎬 Available animations:", viewer.availableAnimations);
+        animationName = viewer.availableAnimations[0]; // pick the first animation
+      } else {
+        console.warn("⚠️ No animations found in this GLB.");
       }
     });
 
     document.getElementById('playBtn').addEventListener('click', () => {
       if (animationName) {
         viewer.animationName = animationName;
-        viewer.currentTime = 0;   // restart from beginning
+        viewer.currentTime = 0;
         viewer.play();
       }
     });
 
     document.getElementById('stopBtn').addEventListener('click', () => {
-      // Example: stop animation halfway (50%)
       if (animationName) {
         viewer.pause();
-        viewer.currentTime = viewer.duration * 0.5; // 50% point
+        viewer.currentTime = viewer.duration * 0.5; // stop halfway
       }
     });
 
     document.getElementById('resetBtn').addEventListener('click', () => {
       if (animationName) {
         viewer.pause();
-        viewer.currentTime = 0;  // back to start
+        viewer.currentTime = 0; // reset to start
       }
     });
   </script>
