@@ -51,7 +51,7 @@
             box-shadow: none;
         }
 
-        /* --- Hotspot Dot Styles (B Fix) --- */
+        /* --- Hotspot Dot Styles --- */
         .Hotspot {
             background: #fff; 
             border: 2px solid #ff4500; 
@@ -109,7 +109,7 @@
     <div class="viewer-container">
         <model-viewer
             id="exploded-model"
-            src="exploded.glb" 
+            src="files/exploded.glb" 
             alt="An exploded view of a car model"
             camera-controls
             touch-action="pan-y"
@@ -120,10 +120,7 @@
             
             <!-- 
                 !!! IMPORTANT: ADJUST COORDINATES BELOW !!!
-                You need to replace these placeholder coordinates (data-position) 
-                with the final, exploded position of each part within your 'exploded.glb' model.
-                
-                I've added some example data-titles corresponding to nodes found in your GLB file.
+                These are placeholder coordinates for your exploded parts.
             -->
 
             <!-- Hotspot 1: Upper Part (Roof/Glass) -->
@@ -201,8 +198,9 @@
         const panelContent = document.getElementById('panel-content');
         const closeButton = document.getElementById('close-panel');
         
-        // State tracking
         let isExploded = false;
+        // Set a fixed animation speed (seconds) for smooth playback when playing multiple tracks
+        const ANIMATION_DURATION_SEC = 4;
 
         // Function to handle the explosion/assembly animation
         const toggleExplosion = () => {
@@ -215,13 +213,19 @@
                 return;
             }
 
-            // A) Play ALL animations simultaneously by joining their names with commas
+            // ******* PLAY ALL ANIMATIONS CONCURRENTLY *******
             const allAnimations = availableAnimations.join(',');
             modelViewer.animationName = allAnimations;
-
-            // B) Control the direction and playback
-            modelViewer.timeScale = isExploded ? -1 : 1; // Reverse for assemble, forward for explode
-            modelViewer.currentTime = isExploded ? modelViewer.duration : 0; // Set start point
+            
+            // Calculate timeScale based on the fixed duration to control playback speed
+            const durationMultiplier = modelViewer.duration / ANIMATION_DURATION_SEC;
+            
+            // Control the direction and playback
+            const timeScaleDirection = isExploded ? -1 : 1;
+            modelViewer.timeScale = timeScaleDirection * durationMultiplier; 
+            
+            // Set start point (end of animation if reversing, start if forward)
+            modelViewer.currentTime = isExploded ? modelViewer.duration : 0; 
             
             // Play for a single time and clamp (stop) when finished
             modelViewer.play({ repetitions: 1, clampWhenFinished: true });
@@ -229,12 +233,11 @@
             isExploded = !isExploded;
             explodeButton.textContent = isExploded ? 'Assemble View' : 'Explode View';
             
-            // C) Show/hide hotspots based on explosion state (Hotspot fix B)
+            // Show/hide hotspots based on explosion state
             document.querySelectorAll('.Hotspot').forEach(hotspot => {
                 hotspot.style.opacity = isExploded ? 1 : 0;
             });
             
-            // Hide info panel when explosion state changes
             infoPanel.style.display = 'none';
         };
 
@@ -266,7 +269,6 @@
                     panelTitle.textContent = "Interactive Mode Locked";
                     panelContent.textContent = "Please click 'Explode View' first to interact with individual components.";
                     infoPanel.style.display = 'block';
-                    // Optional: Fade out message after 2 seconds
                     setTimeout(() => {
                         if (panelTitle.textContent === "Interactive Mode Locked") {
                             infoPanel.style.display = 'none';
@@ -283,12 +285,9 @@
 
         // 5. Initial setup and logging
         document.addEventListener('DOMContentLoaded', () => {
-            // Hotspots start hidden by CSS, no change needed here.
-            
             modelViewer.addEventListener('load', () => {
                 const animations = modelViewer.availableAnimations;
                 console.log(`Model 'exploded.glb' loaded. Found ${animations.length} animations.`);
-                // Log all available animations for user reference (helpful for debugging the ExplodeAction name if needed)
                 if (animations.length > 0) {
                     console.log('Animations detected (all will be played together):', animations.join(', '));
                 }
