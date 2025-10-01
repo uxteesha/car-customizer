@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Exploded View - Multi-Animation (Fix 2)</title>
+    <title>Interactive Exploded View - Final Fixes</title>
     <!-- Use the latest model-viewer for robust animation and AR features -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
-            font-family: 'Inter', sans-serif; background: #1a1a2e; /* Dark background for contrast */
+            font-family: 'Inter', sans-serif; background: #1a1a2e;
             color: #fff;
         }
         .viewer-container { width: 100%; height: 100%; position: relative; }
@@ -37,7 +37,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 700;
-            background: #6a0dad; /* Purple for explosion */
+            background: #6a0dad; 
             color: #fff;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -62,14 +62,15 @@
             padding: 0; 
             cursor: pointer;
             transition: opacity 0.3s;
-            opacity: 0; /* Initially hidden */
+            /* FIX 3: Ensure hotspots are hidden initially */
+            opacity: 0; 
         }
         .Hotspot:hover {
             transform: scale(1.2);
             box-shadow: 0 0 5px rgba(255, 69, 0, 0.8);
         }
         .HotspotAnnotation { 
-            display: none; /* Hide the text inside the dot */
+            display: none; 
         }
 
         /* --- Info Panel Styles --- */
@@ -109,7 +110,7 @@
     <div class="viewer-container">
         <model-viewer
             id="exploded-model"
-            src="exploded.glb" 
+            src="files/exploded.glb" 
             alt="An exploded view of a car model"
             camera-controls
             touch-action="pan-y"
@@ -194,8 +195,7 @@
         const closeButton = document.getElementById('close-panel');
         
         let isExploded = false;
-        // Default max duration if model hasn't loaded yet.
-        let maxDuration = 1; 
+        let maxDuration = 0; // Max duration calculated on load
 
         // Function to handle the explosion/assembly animation
         const toggleExplosion = () => {
@@ -203,20 +203,27 @@
             
             if (availableAnimations.length === 0) {
                 panelTitle.textContent = "Error";
-                panelContent.textContent = "No animations found in the model! Ensure your GLB file has tracks.";
+                panelContent.textContent = "No animations found in the model!";
                 infoPanel.style.display = 'block';
                 return;
             }
 
             // Determine the direction and initial time for playback
             const timeScaleDirection = isExploded ? -1 : 1;
-            const startTime = isExploded ? maxDuration : 0;
+            const startTime = isExploded ? maxDuration : 0; 
             
             // Loop through all tracks and play them individually for robust concurrency
             availableAnimations.forEach(animationName => {
+                // Temporarily set the animation name
                 modelViewer.animationName = animationName;
-                modelViewer.timeScale = timeScaleDirection; // Set normal or reverse speed
-                modelViewer.currentTime = startTime; // Set start point
+                
+                // Set the playback speed (timeScale = 1 is normal speed)
+                modelViewer.timeScale = timeScaleDirection; 
+                
+                // Set the starting point for this specific animation track
+                modelViewer.currentTime = startTime;
+
+                // Play with clampWhenFinished: true to stop at the end/beginning
                 modelViewer.play({ repetitions: 1, clampWhenFinished: true });
             });
 
@@ -289,7 +296,7 @@
                     
                     // Reset to null animation name to avoid initial playback
                     modelViewer.animationName = null;
-                    console.log(`Animations detected. Max duration is ${maxDuration.toFixed(2)} seconds.`);
+                    console.log(`Max duration (used for synchronization): ${maxDuration.toFixed(2)} seconds.`);
                 }
             });
         });
