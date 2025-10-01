@@ -195,44 +195,56 @@
         const closeButton = document.getElementById('close-panel');
         
         let isExploded = false;
-        let maxDuration = 0; // Calculated max duration
+        let allAnimationsString = ''; // Comma-separated list of all animation names
+
+        // FIX 2: Manually pause the animation when it reaches the end/start.
+        const animationTimeListener = (event) => {
+            const currentTime = event.detail.currentTime;
+            
+            // Check if we are reversing (assembling) and hit zero (or near zero)
+            if (modelViewer.timeScale < 0 && currentTime <= 0.05) { 
+                modelViewer.pause();
+                modelViewer.currentTime = 0; // Ensure it's exactly at the start
+                modelViewer.removeEventListener('time-update', animationTimeListener);
+            // Check if we are moving forward (exploding) and hit max duration (or near max)
+            } else if (modelViewer.timeScale > 0 && currentTime >= modelViewer.duration - 0.05) { 
+                modelViewer.pause();
+                modelViewer.currentTime = modelViewer.duration; // Ensure it's exactly at the end
+                modelViewer.removeEventListener('time-update', animationTimeListener);
+            }
+        };
+
 
         // Function to handle the explosion/assembly animation
         const toggleExplosion = () => {
-            const availableAnimations = modelViewer.availableAnimations;
-            
-            if (availableAnimations.length === 0 || maxDuration === 0) {
+            if (!allAnimationsString || modelViewer.duration === 0) {
                 panelTitle.textContent = "Error";
-                panelContent.textContent = "Animation data is missing or not yet loaded.";
+                panelContent.textContent = "Animation data is not ready or has zero duration.";
                 infoPanel.style.display = 'block';
                 return;
             }
 
-            // Determine the direction and starting point
-            const timeScaleDirection = isExploded ? -1 : 1;
-            // FIX 2: Start at max duration if reversing, start at 0 if exploding
-            const startTime = isExploded ? maxDuration : 0; 
-            
-            // FIX 1 & 2: Loop through all tracks and play them individually for robust concurrency and proper stop
-            availableAnimations.forEach(animationName => {
-                // Temporarily set the animation name
-                modelViewer.animationName = animationName;
-                
-                // Set the direction
-                modelViewer.timeScale = timeScaleDirection; 
-                
-                // Set the starting point
-                modelViewer.currentTime = startTime;
+            // FIX 1: Use the comma-separated string to trigger all animations concurrently
+            modelViewer.animationName = allAnimationsString;
 
-                // Play the animation track, stopping exactly at the end/beginning
-                modelViewer.play({ repetitions: 1, clampWhenFinished: true });
-            });
+            // Determine the direction
+            const timeScaleDirection = isExploded ? -1 : 1;
+            modelViewer.timeScale = timeScaleDirection; 
+            
+            // Set the start position (end or beginning)
+            modelViewer.currentTime = isExploded ? modelViewer.duration : 0; 
+            
+            // Play the animation (we rely on the manual listener to stop it)
+            modelViewer.play();
+            
+            // Re-attach the manual stop listener to fix the looping issue
+            modelViewer.addEventListener('time-update', animationTimeListener);
 
 
             isExploded = !isExploded;
             explodeButton.textContent = isExploded ? 'Assemble View' : 'Explode View';
             
-            // FIX 3: Show/hide hotspots based on explosion state
+            // Hotspot visibility toggle
             document.querySelectorAll('.Hotspot').forEach(hotspot => {
                 hotspot.style.opacity = isExploded ? 1 : 0;
             });
@@ -282,21 +294,26 @@
             infoPanel.style.display = 'none';
         });
 
-        // 5. Initial setup and duration calculation
+        // 5. Initial setup and duration calculation (Crucial for synchronization)
         document.addEventListener('DOMContentLoaded', () => {
             modelViewer.addEventListener('load', () => {
                 const animations = modelViewer.availableAnimations;
                 
                 if (animations.length > 0) {
-                    // Find the max duration once the model loads to synchronize tracks
-                    // This sets the precise stopping point for all animations.
-                    maxDuration = animations.reduce((max, name) => {
-                        modelViewer.animationName = name;
-                        return Math.max(max, modelViewer.duration);
-                    }, 0);
+                    // Combine all animation names into a single string
+                    allAnimationsString = animations.join(',');
                     
-                    // Reset to null animation name to avoid initial playback
+                    // Temporarily set the animation name to the combined string
+                    modelViewer.animationName = allAnimationsString;
+                    modelViewer.pause(); // Stop initial playback
+                    
+                    // Capture the total duration of the combined animation set
+                    // This is the max duration used for the stopping point
+                    modelViewer.duration; 
+                    
+                    // Reset animation name and time
                     modelViewer.animationName = null;
+                    modelViewer.currentTime = 0;
                 }
             });
         });
