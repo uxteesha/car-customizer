@@ -42,7 +42,8 @@
     src="exploded.glb"
     camera-controls
     shadow-intensity="1"
-    autoplay
+    autoplay="false"
+    ar
     alt="Exploded view model">
   </model-viewer>
 
@@ -60,27 +61,26 @@
       console.log("✅ Model loaded");
       animations = viewer.availableAnimations || [];
       console.log("🎬 Available animations:", animations);
+
+      // Stop autoplay completely on load
+      viewer.pause();
+      viewer.currentTime = 0;
     });
 
     // Play all animations once and stop at the last frame
     document.getElementById('playBtn').addEventListener('click', () => {
       if (animations.length > 0) {
-        // Set all animations at once
-        viewer.animationName = animations.join(','); 
+        viewer.animationName = animations.join(','); // run all animations
         viewer.currentTime = 0;
+        viewer.loop = "none"; // prevent looping
         viewer.play();
 
-        // Ensure animations don't loop
-        viewer.loop = "none";
-
-        // When animations finish → freeze on last frame
+        // Freeze on last frame when finished
         viewer.addEventListener('finished', () => {
           viewer.pause();
-          viewer.currentTime = viewer.duration; // stay on last frame
-          console.log("⏹ Animation finished and frozen on last frame.");
+          viewer.currentTime = viewer.duration;
+          console.log("⏹ All animations finished and frozen at last frame.");
         }, { once: true });
-      } else {
-        console.warn("⚠️ No animations found in this GLB.");
       }
     });
 
@@ -88,7 +88,7 @@
     document.getElementById('resetBtn').addEventListener('click', () => {
       if (animations.length > 0) {
         viewer.pause();
-        viewer.currentTime = 0; // reset to start
+        viewer.currentTime = 0; // reset all animations
       }
     });
   </script>
