@@ -42,53 +42,54 @@
     src="explodedd.glb"
     camera-controls
     shadow-intensity="1"
-    autoplay="false"
-    ar
     alt="Exploded view model">
   </model-viewer>
 
   <!-- Controls -->
   <div class="controls">
-    <button id="playBtn">▶ Play All</button>
+    <button id="playBtn">▶ Play Explode</button>
     <button id="resetBtn">⏮ Reset</button>
   </div>
 
   <script>
     const viewer = document.getElementById('exploded-viewer');
-    let animations = [];
+    let animationName = null;
 
     viewer.addEventListener('load', () => {
       console.log("✅ Model loaded");
-      animations = viewer.availableAnimations || [];
-      console.log("🎬 Available animations:", animations);
+      console.log("🎬 Available animations:", viewer.availableAnimations);
 
-      // Stop autoplay completely on load
+      if (viewer.availableAnimations && viewer.availableAnimations.length > 0) {
+        animationName = viewer.availableAnimations[0]; // use first animation (should be exploded)
+      }
+
+      // Ensure it doesn't autoplay
       viewer.pause();
       viewer.currentTime = 0;
     });
 
-    // Play all animations once and stop at the last frame
     document.getElementById('playBtn').addEventListener('click', () => {
-      if (animations.length > 0) {
-        viewer.animationName = animations.join(','); // run all animations
+      if (animationName) {
+        viewer.animationName = animationName;
+        viewer.loop = "none";  // play once only
         viewer.currentTime = 0;
-        viewer.loop = "none"; // prevent looping
         viewer.play();
 
-        // Freeze on last frame when finished
+        // Freeze on last frame
         viewer.addEventListener('finished', () => {
           viewer.pause();
           viewer.currentTime = viewer.duration;
-          console.log("⏹ All animations finished and frozen at last frame.");
+          console.log("⏹ Animation finished and frozen on last frame.");
         }, { once: true });
+      } else {
+        console.warn("⚠️ No animation found in explodedd.glb");
       }
     });
 
-    // Reset to start
     document.getElementById('resetBtn').addEventListener('click', () => {
-      if (animations.length > 0) {
+      if (animationName) {
         viewer.pause();
-        viewer.currentTime = 0; // reset all animations
+        viewer.currentTime = 0;
       }
     });
   </script>
