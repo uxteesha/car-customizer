@@ -62,7 +62,7 @@
             padding: 0; 
             cursor: pointer;
             transition: opacity 0.3s;
-            /* FIX 3: Ensure hotspots are hidden initially */
+            /* Hotspots are hidden until exploded */
             opacity: 0; 
         }
         .Hotspot:hover {
@@ -195,35 +195,36 @@
         const closeButton = document.getElementById('close-panel');
         
         let isExploded = false;
-        let maxDuration = 0; // Max duration calculated on load
+        let maxDuration = 0; // Calculated max duration
 
         // Function to handle the explosion/assembly animation
         const toggleExplosion = () => {
             const availableAnimations = modelViewer.availableAnimations;
             
-            if (availableAnimations.length === 0) {
+            if (availableAnimations.length === 0 || maxDuration === 0) {
                 panelTitle.textContent = "Error";
-                panelContent.textContent = "No animations found in the model!";
+                panelContent.textContent = "Animation data is missing or not yet loaded.";
                 infoPanel.style.display = 'block';
                 return;
             }
 
-            // Determine the direction and initial time for playback
+            // Determine the direction and starting point
             const timeScaleDirection = isExploded ? -1 : 1;
+            // FIX 2: Start at max duration if reversing, start at 0 if exploding
             const startTime = isExploded ? maxDuration : 0; 
             
-            // Loop through all tracks and play them individually for robust concurrency
+            // FIX 1 & 2: Loop through all tracks and play them individually for robust concurrency and proper stop
             availableAnimations.forEach(animationName => {
                 // Temporarily set the animation name
                 modelViewer.animationName = animationName;
                 
-                // Set the playback speed (timeScale = 1 is normal speed)
+                // Set the direction
                 modelViewer.timeScale = timeScaleDirection; 
                 
-                // Set the starting point for this specific animation track
+                // Set the starting point
                 modelViewer.currentTime = startTime;
 
-                // Play with clampWhenFinished: true to stop at the end/beginning
+                // Play the animation track, stopping exactly at the end/beginning
                 modelViewer.play({ repetitions: 1, clampWhenFinished: true });
             });
 
@@ -231,7 +232,7 @@
             isExploded = !isExploded;
             explodeButton.textContent = isExploded ? 'Assemble View' : 'Explode View';
             
-            // Show/hide hotspots based on explosion state
+            // FIX 3: Show/hide hotspots based on explosion state
             document.querySelectorAll('.Hotspot').forEach(hotspot => {
                 hotspot.style.opacity = isExploded ? 1 : 0;
             });
@@ -285,10 +286,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             modelViewer.addEventListener('load', () => {
                 const animations = modelViewer.availableAnimations;
-                console.log(`Model 'exploded.glb' loaded. Found ${animations.length} animations.`);
-
+                
                 if (animations.length > 0) {
                     // Find the max duration once the model loads to synchronize tracks
+                    // This sets the precise stopping point for all animations.
                     maxDuration = animations.reduce((max, name) => {
                         modelViewer.animationName = name;
                         return Math.max(max, modelViewer.duration);
@@ -296,7 +297,6 @@
                     
                     // Reset to null animation name to avoid initial playback
                     modelViewer.animationName = null;
-                    console.log(`Max duration (used for synchronization): ${maxDuration.toFixed(2)} seconds.`);
                 }
             });
         });
