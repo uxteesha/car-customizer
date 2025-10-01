@@ -197,7 +197,7 @@
         let isExploded = false;
         let allAnimationsString = ''; // Comma-separated list of all animation names
 
-        // FIX 2: Manually pause the animation when it reaches the end/start.
+        // Manually pause the animation when it reaches the end/start to fix the looping issue.
         const animationTimeListener = (event) => {
             const currentTime = event.detail.currentTime;
             
@@ -219,7 +219,7 @@
         const toggleExplosion = () => {
             if (!allAnimationsString || modelViewer.duration === 0) {
                 panelTitle.textContent = "Error";
-                panelContent.textContent = "Animation data is not ready or has zero duration.";
+                panelContent.textContent = "Animation data is not ready or has zero duration. Please wait for the model to fully load.";
                 infoPanel.style.display = 'block';
                 return;
             }
@@ -307,7 +307,7 @@
                     modelViewer.animationName = allAnimationsString;
                     modelViewer.pause(); // Stop initial playback
                     
-                    // Capture the total duration of the combined animation set
+                    // CRITICAL FIX: Capture the total duration of the combined animation set
                     // This is the max duration used for the stopping point
                     modelViewer.duration; 
                     
