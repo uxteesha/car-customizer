@@ -3,96 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exploded View Animation</title>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+  <title>Exploded Car Animation</title>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
   <style>
     body, html {
-      margin: 0; padding: 0; height: 100%; width: 100%;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
       background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     model-viewer {
       width: 100%;
-      height: 80vh;
-      background: #fff;
+      height: 100vh;
     }
-    .controls {
-      margin-top: 10px;
+    .btn-container {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      gap: 10px;
+      gap: 15px;
     }
     button {
-      padding: 10px 16px;
+      padding: 10px 20px;
       border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: bold;
+      border-radius: 8px;
       background: #007bff;
       color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
-    button:hover { background: #0056b3; }
+    button:hover {
+      background: #0056b3;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Model -->
   <model-viewer
-    id="exploded-viewer"
+    id="car-model"
     src="explodedd.glb"
+    ar
+    ar-modes="webxr scene-viewer quick-look"
     camera-controls
-    shadow-intensity="1"
-    alt="Exploded view model">
+    autoplay="false"
+    animation-name="car_animation"
+    animation-loop="false"
+    shadow-intensity="1">
   </model-viewer>
 
-  <!-- Controls -->
-  <div class="controls">
-    <button id="playBtn">▶ Play Explode</button>
-    <button id="resetBtn">⏮ Reset</button>
+  <div class="btn-container">
+    <button id="play">Explode</button>
+    <button id="reset">Reset</button>
   </div>
 
   <script>
-    const viewer = document.getElementById('exploded-viewer');
-    let animationName = null;
+    const modelViewer = document.getElementById("car-model");
+    const playBtn = document.getElementById("play");
+    const resetBtn = document.getElementById("reset");
 
-    viewer.addEventListener('load', () => {
-      console.log("✅ Model loaded");
-      console.log("🎬 Available animations:", viewer.availableAnimations);
-
-      if (viewer.availableAnimations && viewer.availableAnimations.length > 0) {
-        animationName = viewer.availableAnimations[0]; // use first animation (should be exploded)
-      }
-
-      // Ensure it doesn't autoplay
-      viewer.pause();
-      viewer.currentTime = 0;
+    // Play the animation once
+    playBtn.addEventListener("click", () => {
+      modelViewer.currentTime = 0; 
+      modelViewer.animationName = "car_animation";
+      modelViewer.play();
     });
 
-    document.getElementById('playBtn').addEventListener('click', () => {
-      if (animationName) {
-        viewer.animationName = animationName;
-        viewer.loop = "none";  // play once only
-        viewer.currentTime = 0;
-        viewer.play();
-
-        // Freeze on last frame
-        viewer.addEventListener('finished', () => {
-          viewer.pause();
-          viewer.currentTime = viewer.duration;
-          console.log("⏹ Animation finished and frozen on last frame.");
-        }, { once: true });
-      } else {
-        console.warn("⚠️ No animation found in explodedd.glb");
-      }
+    // Reset model (go back to frame 0)
+    resetBtn.addEventListener("click", () => {
+      modelViewer.pause();
+      modelViewer.currentTime = 0; 
     });
 
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      if (animationName) {
-        viewer.pause();
-        viewer.currentTime = 0;
-      }
+    // Stop after animation ends
+    modelViewer.addEventListener("finished", () => {
+      modelViewer.pause();
     });
   </script>
 
 </body>
 </html>
+
