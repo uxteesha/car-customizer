@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Exploded View - Multi-Animation</title>
+    <title>Interactive Exploded View - Multi-Animation (Robust Playback)</title>
     <!-- Use the latest model-viewer for robust animation and AR features -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
@@ -109,7 +109,7 @@
     <div class="viewer-container">
         <model-viewer
             id="exploded-model"
-            src="files/exploded.glb" 
+            src="exploded.glb" 
             alt="An exploded view of a car model"
             camera-controls
             touch-action="pan-y"
@@ -199,8 +199,11 @@
         const closeButton = document.getElementById('close-panel');
         
         let isExploded = false;
-        // Set a fixed animation speed (seconds) for smooth playback when playing multiple tracks
+        // Use a consistent duration for playback speed control
         const ANIMATION_DURATION_SEC = 4;
+        
+        // This will hold the maximum duration found among all tracks
+        let maxDuration = 0;
 
         // Function to handle the explosion/assembly animation
         const toggleExplosion = () => {
@@ -213,22 +216,27 @@
                 return;
             }
 
-            // ******* PLAY ALL ANIMATIONS CONCURRENTLY *******
-            const allAnimations = availableAnimations.join(',');
-            modelViewer.animationName = allAnimations;
-            
-            // Calculate timeScale based on the fixed duration to control playback speed
-            const durationMultiplier = modelViewer.duration / ANIMATION_DURATION_SEC;
-            
-            // Control the direction and playback
+            // Determine the direction and initial time for playback
             const timeScaleDirection = isExploded ? -1 : 1;
-            modelViewer.timeScale = timeScaleDirection * durationMultiplier; 
+            const startTime = isExploded ? maxDuration : 0;
             
-            // Set start point (end of animation if reversing, start if forward)
-            modelViewer.currentTime = isExploded ? modelViewer.duration : 0; 
-            
-            // Play for a single time and clamp (stop) when finished
-            modelViewer.play({ repetitions: 1, clampWhenFinished: true });
+            // Loop through all tracks and play them individually for robust concurrency
+            availableAnimations.forEach(animationName => {
+                // Temporarily set the animation name to get its specific duration for calculation
+                modelViewer.animationName = animationName;
+                
+                // Calculate timeScale based on desired speed
+                // If all animations have the same length (maxDuration), this factor is consistent.
+                const durationMultiplier = maxDuration / ANIMATION_DURATION_SEC;
+                modelViewer.timeScale = timeScaleDirection * durationMultiplier; 
+                
+                // Set the starting point for this specific animation track
+                modelViewer.currentTime = startTime;
+
+                // Play the animation track
+                modelViewer.play({ repetitions: 1, clampWhenFinished: true });
+            });
+
 
             isExploded = !isExploded;
             explodeButton.textContent = isExploded ? 'Assemble View' : 'Explode View';
@@ -285,11 +293,23 @@
 
         // 5. Initial setup and logging
         document.addEventListener('DOMContentLoaded', () => {
+            // Find the maximum duration of all animations once the model is loaded
             modelViewer.addEventListener('load', () => {
                 const animations = modelViewer.availableAnimations;
                 console.log(`Model 'exploded.glb' loaded. Found ${animations.length} animations.`);
+
                 if (animations.length > 0) {
-                    console.log('Animations detected (all will be played together):', animations.join(', '));
+                    // Find the max duration to ensure all animations finish together
+                    // NOTE: This temporarily changes modelViewer.animationName inside the loop, 
+                    // but it's essential for getting accurate durations for multi-track synchronization.
+                    maxDuration = animations.reduce((max, name) => {
+                        modelViewer.animationName = name;
+                        return Math.max(max, modelViewer.duration);
+                    }, 0);
+                    
+                    // Reset to null animation name to avoid initial playback
+                    modelViewer.animationName = null;
+                    console.log(`Animations detected. Max duration is ${maxDuration.toFixed(2)} seconds.`);
                 }
             });
         });
