@@ -41,50 +41,52 @@
     id="exploded-viewer"
     src="exploded.glb"
     camera-controls
-    autoplay
     shadow-intensity="1"
+    autoplay
     alt="Exploded view model">
   </model-viewer>
 
   <!-- Controls -->
   <div class="controls">
-    <button id="playBtn">▶ Play Exploded</button>
-    <button id="stopBtn">⏸ Stop Midway</button>
+    <button id="playBtn">▶ Play All</button>
     <button id="resetBtn">⏮ Reset</button>
   </div>
 
   <script>
     const viewer = document.getElementById('exploded-viewer');
-    let animationName = null;
+    let animations = [];
 
     viewer.addEventListener('load', () => {
       console.log("✅ Model loaded");
+      animations = viewer.availableAnimations || [];
+      console.log("🎬 Available animations:", animations);
+    });
 
-      if (viewer.availableAnimations && viewer.availableAnimations.length > 0) {
-        console.log("🎬 Available animations:", viewer.availableAnimations);
-        animationName = viewer.availableAnimations[0]; // pick the first animation
+    // Play all animations once and stop at the last frame
+    document.getElementById('playBtn').addEventListener('click', () => {
+      if (animations.length > 0) {
+        // Set all animations at once
+        viewer.animationName = animations.join(','); 
+        viewer.currentTime = 0;
+        viewer.play();
+
+        // Ensure animations don't loop
+        viewer.loop = "none";
+
+        // When animations finish → freeze on last frame
+        viewer.addEventListener('finished', () => {
+          viewer.pause();
+          viewer.currentTime = viewer.duration; // stay on last frame
+          console.log("⏹ Animation finished and frozen on last frame.");
+        }, { once: true });
       } else {
         console.warn("⚠️ No animations found in this GLB.");
       }
     });
 
-    document.getElementById('playBtn').addEventListener('click', () => {
-      if (animationName) {
-        viewer.animationName = animationName;
-        viewer.currentTime = 0;
-        viewer.play();
-      }
-    });
-
-    document.getElementById('stopBtn').addEventListener('click', () => {
-      if (animationName) {
-        viewer.pause();
-        viewer.currentTime = viewer.duration * 0.5; // stop halfway
-      }
-    });
-
+    // Reset to start
     document.getElementById('resetBtn').addEventListener('click', () => {
-      if (animationName) {
+      if (animations.length > 0) {
         viewer.pause();
         viewer.currentTime = 0; // reset to start
       }
