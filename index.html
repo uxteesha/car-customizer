@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Exploded View - Multi-Animation (Robust Playback)</title>
+    <title>Interactive Exploded View - Multi-Animation (Fix 2)</title>
     <!-- Use the latest model-viewer for robust animation and AR features -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
@@ -118,11 +118,6 @@
             disable-zoom
             >
             
-            <!-- 
-                !!! IMPORTANT: ADJUST COORDINATES BELOW !!!
-                These are placeholder coordinates for your exploded parts.
-            -->
-
             <!-- Hotspot 1: Upper Part (Roof/Glass) -->
             <button class="Hotspot" 
                 slot="hotspot-1" 
@@ -199,11 +194,8 @@
         const closeButton = document.getElementById('close-panel');
         
         let isExploded = false;
-        // Use a consistent duration for playback speed control
-        const ANIMATION_DURATION_SEC = 4;
-        
-        // This will hold the maximum duration found among all tracks
-        let maxDuration = 0;
+        // Default max duration if model hasn't loaded yet.
+        let maxDuration = 1; 
 
         // Function to handle the explosion/assembly animation
         const toggleExplosion = () => {
@@ -211,7 +203,7 @@
             
             if (availableAnimations.length === 0) {
                 panelTitle.textContent = "Error";
-                panelContent.textContent = "No animations found in the model!";
+                panelContent.textContent = "No animations found in the model! Ensure your GLB file has tracks.";
                 infoPanel.style.display = 'block';
                 return;
             }
@@ -222,18 +214,9 @@
             
             // Loop through all tracks and play them individually for robust concurrency
             availableAnimations.forEach(animationName => {
-                // Temporarily set the animation name to get its specific duration for calculation
                 modelViewer.animationName = animationName;
-                
-                // Calculate timeScale based on desired speed
-                // If all animations have the same length (maxDuration), this factor is consistent.
-                const durationMultiplier = maxDuration / ANIMATION_DURATION_SEC;
-                modelViewer.timeScale = timeScaleDirection * durationMultiplier; 
-                
-                // Set the starting point for this specific animation track
-                modelViewer.currentTime = startTime;
-
-                // Play the animation track
+                modelViewer.timeScale = timeScaleDirection; // Set normal or reverse speed
+                modelViewer.currentTime = startTime; // Set start point
                 modelViewer.play({ repetitions: 1, clampWhenFinished: true });
             });
 
@@ -291,17 +274,14 @@
             infoPanel.style.display = 'none';
         });
 
-        // 5. Initial setup and logging
+        // 5. Initial setup and duration calculation
         document.addEventListener('DOMContentLoaded', () => {
-            // Find the maximum duration of all animations once the model is loaded
             modelViewer.addEventListener('load', () => {
                 const animations = modelViewer.availableAnimations;
                 console.log(`Model 'exploded.glb' loaded. Found ${animations.length} animations.`);
 
                 if (animations.length > 0) {
-                    // Find the max duration to ensure all animations finish together
-                    // NOTE: This temporarily changes modelViewer.animationName inside the loop, 
-                    // but it's essential for getting accurate durations for multi-track synchronization.
+                    // Find the max duration once the model loads to synchronize tracks
                     maxDuration = animations.reduce((max, name) => {
                         modelViewer.animationName = name;
                         return Math.max(max, modelViewer.duration);
