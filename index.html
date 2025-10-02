@@ -195,11 +195,14 @@
         const closeButton = document.getElementById('close-panel');
         
         let isExploded = false;
-        let allAnimationsString = ''; 
+        let animationsArray = []; // Array of all detected animation names
+        let maxDuration = 0; // Max duration calculated on load
 
         // Manually pause the animation when it reaches the end/start to fix the looping issue.
         const animationTimeListener = (event) => {
             const currentTime = event.detail.currentTime;
+            
+            // Note: We use maxDuration for the comparison, calculated in the 'load' listener.
             
             // Check if we are reversing (assembling) and hit zero (or near zero)
             if (modelViewer.timeScale < 0 && currentTime <= 0.05) { 
@@ -207,9 +210,9 @@
                 modelViewer.currentTime = 0; // Ensure it's exactly at the start
                 modelViewer.removeEventListener('time-update', animationTimeListener);
             // Check if we are moving forward (exploding) and hit max duration (or near max)
-            } else if (modelViewer.timeScale > 0 && currentTime >= modelViewer.duration - 0.05) { 
+            } else if (modelViewer.timeScale > 0 && currentTime >= maxDuration - 0.05) { 
                 modelViewer.pause();
-                modelViewer.currentTime = modelViewer.duration; // Ensure it's exactly at the end
+                modelViewer.currentTime = maxDuration; // Ensure it's exactly at the end
                 modelViewer.removeEventListener('time-update', animationTimeListener);
             }
         };
@@ -217,27 +220,34 @@
 
         // Function to handle the explosion/assembly animation
         const toggleExplosion = () => {
-            if (!allAnimationsString || modelViewer.duration === 0) {
+            if (animationsArray.length === 0 || maxDuration === 0) {
                 panelTitle.textContent = "Error";
-                panelContent.textContent = "Animation data is not ready. Please wait for the model to fully load.";
+                panelContent.textContent = "Animation data is not ready or has zero duration. Please wait for the model to fully load.";
                 infoPanel.style.display = 'block';
                 return;
             }
 
-            // Set animation name to the comma-separated string to trigger all concurrently
-            modelViewer.animationName = allAnimationsString;
-
-            // Determine the direction
+            // Determine the direction and start/end position
             const timeScaleDirection = isExploded ? -1 : 1;
-            modelViewer.timeScale = timeScaleDirection; 
+            // Use the calculated maxDuration as the ending point
+            const startTime = isExploded ? maxDuration : 0; 
             
-            // Set the start position (end or beginning)
-            modelViewer.currentTime = isExploded ? modelViewer.duration : 0; 
+            // FIX: Use the stable forEach loop for concurrent playback
+            animationsArray.forEach(animationName => {
+                // Set the specific animation name for the track
+                modelViewer.animationName = animationName;
+                
+                // Set the direction
+                modelViewer.timeScale = timeScaleDirection; 
+                
+                // Set the starting point
+                modelViewer.currentTime = startTime;
+
+                // Play the animation track, stopping exactly at the end/beginning
+                modelViewer.play({ repetitions: 1, clampWhenFinished: true });
+            });
             
-            // Play the animation (we rely on the manual listener to stop it)
-            modelViewer.play();
-            
-            // Re-attach the manual stop listener 
+            // Re-add the manual stop listener as a failsafe
             modelViewer.addEventListener('time-update', animationTimeListener);
 
             isExploded = !isExploded;
@@ -251,20 +261,35 @@
             infoPanel.style.display = 'none';
         };
 
-        // --- Event Listeners ---
-        
-        // 1. Explode/Assemble Button
-        explodeButton.addEventListener('click', toggleExplosion);
+        // --- Initial setup and animation string creation (CRITICAL) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            modelViewer.addEventListener('load', () => {
+                animationsArray = modelViewer.availableAnimations;
+                
+                if (animationsArray.length > 0) {
+                    // Find the max duration among ALL tracks to set the precise stopping point
+                    maxDuration = animationsArray.reduce((max, name) => {
+                        // Temporarily set the animation name to get its specific duration
+                        modelViewer.animationName = name;
+                        return Math.max(max, modelViewer.duration);
+                    }, 0);
+                    
+                    // Reset animation name and time to prevent immediate playback
+                    modelViewer.animationName = null;
+                    modelViewer.currentTime = 0;
+                }
+            });
+        });
 
-        // 2. AR Launch Button
+        // --- Other Event Listeners ---
+        
+        explodeButton.addEventListener('click', toggleExplosion);
         arLaunchButton.addEventListener('click', () => { modelViewer.activateAR(); });
 
-        // 3. Hotspot Information Clicks
         document.querySelectorAll('.Hotspot').forEach(hotspot => {
             hotspot.addEventListener('click', (event) => {
                 event.preventDefault();
                 
-                // Only allow interaction if the model is fully exploded
                 if (isExploded) {
                     const title = hotspot.getAttribute('data-title');
                     const description = hotspot.getAttribute('data-description');
@@ -285,31 +310,8 @@
             });
         });
 
-        // 4. Close Panel Button
         closeButton.addEventListener('click', () => {
             infoPanel.style.display = 'none';
-        });
-
-        // 5. Initial setup and animation string creation (CRITICAL)
-        document.addEventListener('DOMContentLoaded', () => {
-            modelViewer.addEventListener('load', () => {
-                const animations = modelViewer.availableAnimations;
-                
-                if (animations.length > 0) {
-                    // Combine all animation names into a single string for concurrent playback
-                    allAnimationsString = animations.join(',');
-                    
-                    // Temporarily set the animation name to the combined string 
-                    modelViewer.animationName = allAnimationsString;
-                    modelViewer.pause(); 
-                    
-                    // The modelViewer.duration property is now set to the maximum duration of the combined tracks.
-                    
-                    // Reset animation name and time
-                    modelViewer.animationName = null;
-                    modelViewer.currentTime = 0;
-                }
-            });
         });
     </script>
 </body>
