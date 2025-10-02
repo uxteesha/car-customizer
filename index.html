@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Exploded View - Final Fixes</title>
-    <!-- Use the latest model-viewer for robust animation and AR features -->
+    <title>Interactive Exploded View - Final Code</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
         body, html {
@@ -110,7 +109,7 @@
     <div class="viewer-container">
         <model-viewer
             id="exploded-model"
-            src="exploded.glb" 
+            src="explodedd.glb" 
             alt="An exploded view of a car model"
             camera-controls
             touch-action="pan-y"
@@ -194,8 +193,10 @@
         const panelContent = document.getElementById('panel-content');
         const closeButton = document.getElementById('close-panel');
         
+        // --- Configuration ---
+        const PRIMARY_ANIMATION_NAME = 'car_animation';
         let isExploded = false;
-        let allAnimationsString = ''; // Comma-separated list of all animation names
+        let animationDuration = 0; // Will be set on load
 
         // Manually pause the animation when it reaches the end/start to fix the looping issue.
         const animationTimeListener = (event) => {
@@ -207,9 +208,9 @@
                 modelViewer.currentTime = 0; // Ensure it's exactly at the start
                 modelViewer.removeEventListener('time-update', animationTimeListener);
             // Check if we are moving forward (exploding) and hit max duration (or near max)
-            } else if (modelViewer.timeScale > 0 && currentTime >= modelViewer.duration - 0.05) { 
+            } else if (modelViewer.timeScale > 0 && currentTime >= animationDuration - 0.05) { 
                 modelViewer.pause();
-                modelViewer.currentTime = modelViewer.duration; // Ensure it's exactly at the end
+                modelViewer.currentTime = animationDuration; // Ensure it's exactly at the end
                 modelViewer.removeEventListener('time-update', animationTimeListener);
             }
         };
@@ -217,29 +218,28 @@
 
         // Function to handle the explosion/assembly animation
         const toggleExplosion = () => {
-            if (!allAnimationsString || modelViewer.duration === 0) {
+            if (animationDuration === 0) {
                 panelTitle.textContent = "Error";
-                panelContent.textContent = "Animation data is not ready or has zero duration. Please wait for the model to fully load.";
+                panelContent.textContent = `Animation '${PRIMARY_ANIMATION_NAME}' not loaded or has zero duration.`;
                 infoPanel.style.display = 'block';
                 return;
             }
 
-            // FIX 1: Use the comma-separated string to trigger all animations concurrently
-            modelViewer.animationName = allAnimationsString;
+            // Set the single, correct animation name
+            modelViewer.animationName = PRIMARY_ANIMATION_NAME;
 
             // Determine the direction
             const timeScaleDirection = isExploded ? -1 : 1;
             modelViewer.timeScale = timeScaleDirection; 
             
-            // Set the start position (end or beginning)
-            modelViewer.currentTime = isExploded ? modelViewer.duration : 0; 
+            // Set the start position (end or beginning) using the calculated duration
+            modelViewer.currentTime = isExploded ? animationDuration : 0; 
             
-            // Play the animation (we rely on the manual listener to stop it)
+            // Play the animation 
             modelViewer.play();
             
-            // Re-attach the manual stop listener to fix the looping issue
+            // Re-attach the manual stop listener 
             modelViewer.addEventListener('time-update', animationTimeListener);
-
 
             isExploded = !isExploded;
             explodeButton.textContent = isExploded ? 'Assemble View' : 'Explode View';
@@ -252,29 +252,48 @@
             infoPanel.style.display = 'none';
         };
 
-        // --- Event Listeners ---
-        
-        // 1. Explode/Assemble Button
-        explodeButton.addEventListener('click', toggleExplosion);
-
-        // 2. AR Launch Button
-        arLaunchButton.addEventListener('click', () => {
-            modelViewer.activateAR();
+        // --- Initial setup and duration calculation (CRITICAL) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            modelViewer.addEventListener('load', () => {
+                const animations = modelViewer.availableAnimations;
+                
+                if (animations.includes(PRIMARY_ANIMATION_NAME)) {
+                    // Set the primary animation name temporarily to get its duration
+                    modelViewer.animationName = PRIMARY_ANIMATION_NAME;
+                    animationDuration = modelViewer.duration;
+                    
+                    // Display success message and duration
+                    panelTitle.textContent = "Model Ready!";
+                    panelContent.textContent = `'${PRIMARY_ANIMATION_NAME}' track loaded with a duration of ${animationDuration.toFixed(2)}s. Click Explode View to start.`;
+                    infoPanel.style.display = 'block';
+                    setTimeout(() => infoPanel.style.display = 'none', 4000);
+                    
+                    // Reset animation name and time to prevent immediate playback
+                    modelViewer.animationName = null;
+                    modelViewer.currentTime = 0;
+                } else {
+                    panelTitle.textContent = "Animation Error";
+                    panelContent.textContent = `Could not find animation track named '${PRIMARY_ANIMATION_NAME}'. Found tracks: ${animations.join(', ') || 'None'}.`;
+                    infoPanel.style.display = 'block';
+                }
+            });
         });
 
-        // 3. Hotspot Information Clicks
+        // --- Other Event Listeners ---
+        
+        explodeButton.addEventListener('click', toggleExplosion);
+        arLaunchButton.addEventListener('click', () => { modelViewer.activateAR(); });
+
         document.querySelectorAll('.Hotspot').forEach(hotspot => {
             hotspot.addEventListener('click', (event) => {
                 event.preventDefault();
                 
-                // Only allow interaction if the model is fully exploded
                 if (isExploded) {
                     const title = hotspot.getAttribute('data-title');
                     const description = hotspot.getAttribute('data-description');
     
                     panelTitle.textContent = title;
                     panelContent.textContent = description;
-    
                     infoPanel.style.display = 'block';
                 } else {
                     panelTitle.textContent = "Interactive Mode Locked";
@@ -289,34 +308,8 @@
             });
         });
 
-        // 4. Close Panel Button
         closeButton.addEventListener('click', () => {
             infoPanel.style.display = 'none';
-        });
-
-        // 5. Initial setup and duration calculation (Crucial for synchronization)
-        document.addEventListener('DOMContentLoaded', () => {
-            modelViewer.addEventListener('load', () => {
-                const animations = modelViewer.availableAnimations;
-                
-                if (animations.length > 0) {
-                    // Combine all animation names into a single string
-                    allAnimationsString = animations.join(',');
-                    
-                    // Temporarily set the animation name to the combined string
-                    // This is essential to allow modelViewer.duration to calculate the total length.
-                    modelViewer.animationName = allAnimationsString;
-                    modelViewer.pause(); // Stop initial playback
-                    
-                    // Capture the total duration of the combined animation set
-                    // We don't need to save this to a variable since modelViewer.duration updates automatically 
-                    // when modelViewer.animationName is set.
-                    
-                    // Reset animation name and time
-                    modelViewer.animationName = null;
-                    modelViewer.currentTime = 0;
-                }
-            });
         });
     </script>
 </body>
