@@ -3,315 +3,293 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Exploded View - Final Code (Original GLB)</title>
-    <!-- We use the latest model-viewer version (4.0.0) -->
+    <title>AR Car Customizer with Hotspots & Animation (Fixed)</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
-            font-family: 'Inter', sans-serif; background: #1a1a2e;
-            color: #fff;
+            font-family: sans-serif; background: #f0f0f0;
         }
         .viewer-container { width: 100%; height: 100%; position: relative; }
-        model-viewer { 
-            width: 100%; 
-            height: 100%; 
-            --poster-color: #1a1a2e;
-        }
+        model-viewer { width: 100%; height: 100%; }
 
-        /* --- Controls Panel --- */
+        /* Customization Controls Panel Styles */
         .controls-panel {
-            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-            background: rgba(40, 44, 52, 0.9); 
-            border-radius: 12px;
-            padding: 10px 20px; 
-            display: flex; 
-            gap: 15px;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.9); border-radius: 12px;
+            padding: 15px; display: flex; flex-direction: column;
+            align-items: center; gap: 15px;
             z-index: 11;
         }
-        .control-button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
+        .button-list { display: flex; gap: 10px; }
+        .color-selector {
+            width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fff;
             cursor: pointer;
-            font-weight: 700;
-            background: #6a0dad; 
-            color: #fff;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
-        .control-button:hover {
-            background: #9d2ec9;
-            transform: translateY(-1px);
+        .tyre-btn, .mode-btn {
+            padding: 8px 16px; border: none; border-radius: 8px;
+            cursor: pointer; font-weight: 600; color: #fff;
         }
-        .control-button:active {
-            transform: translateY(1px);
-            box-shadow: none;
-        }
+        .tyre-btn { background: #007bff; }
+        .mode-btn { background: #28a745; }
 
-        /* --- Hotspot Dot Styles --- */
-        .Hotspot {
-            background: #fff; 
-            border: 2px solid #ff4500; 
-            border-radius: 50%;
-            width: 16px; 
-            height: 16px; 
-            display: block;
-            padding: 0; 
-            cursor: pointer;
-            transition: opacity 0.3s;
-            /* Hotspots are hidden until exploded */
-            opacity: 0; 
-        }
-        .Hotspot:hover {
-            transform: scale(1.2);
-            box-shadow: 0 0 5px rgba(255, 69, 0, 0.8);
-        }
-        .HotspotAnnotation { 
-            display: none; 
-        }
-
-        /* --- Info Panel Styles --- */
+        /* Hotspot Info Panel Styles */
         #info-panel {
             display: none; 
-            position: absolute; bottom: 15px; right: 15px;
-            width: 250px;
-            background: rgba(255, 255, 255, 0.95); 
-            padding: 20px; 
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); 
-            z-index: 10;
-            color: #1a1a2e;
-        }
-        #panel-title {
-            font-size: 1.2em;
-            font-weight: 700;
-            margin-bottom: 5px;
-            border-bottom: 2px solid #6a0dad;
-            padding-bottom: 5px;
-        }
-        #panel-content {
-            font-size: 0.9em;
-            margin-bottom: 10px;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 10;
         }
         #close-panel {
-            background: #ff4500;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 5px;
+            margin-top: 10px; padding: 5px 10px; cursor: pointer;
+        }
+        
+        /* Hotspot Dot Styles */
+        .Hotspot {
+            background: #fff; 
+            border: 2px solid #007bff; 
+            border-radius: 50%;
+            width: 20px; 
+            height: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 0; 
             cursor: pointer;
+        }
+        .HotspotAnnotations, .HotspotAnnotation {
+            display: none; 
+        }
+
+        /* Door Animation Button Style */
+        .Hotspots { 
+            background: rgba(255, 255, 255, 0.8); 
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #333;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: block; 
+        }
+        .Hotspots .HotspotAnnotations {
+            display: block; 
         }
     </style>
 </head>
 <body>
     <div class="viewer-container">
         <model-viewer
-            id="exploded-model"
-            src="exploded.glb" 
-            alt="An exploded view of a car model"
-            camera-controls
-            touch-action="pan-y"
+            id="car-model"
+            src="Pink futuristic real.glb"
+            alt="A 3D model of a car"
+            ar
+            ar-modes="webxr scene-viewer quick-look"
+            ar-placement="floor"
+            ar-scale="fixed"
+            scale="1 1 1"
             shadow-intensity="1"
-            exposure="1.5"
-            disable-zoom
-            >
+            shadow-softness="0.8"
+            camera-controls
+            auto-rotate>
             
-            <!-- Hotspot 1: Upper Part (Roof/Glass) -->
+            <button class="Hotspots" slot="hotspot-2" data-surface="79 0 2387 905 2388 0.265 0.158 0.577" data-visibility-attribute="visible">
+                <div class="HotspotAnnotations">Open Doors</div>
+            </button>
+
             <button class="Hotspot" 
-                slot="hotspot-1" 
-                data-position="0.0m 1.8m 0.0m" 
-                data-normal="0m 1m 0m"
-                data-title="Upper Part (Roof/Glass)" 
-                data-description="Sliding roof assembly and smart glass panel.">
+            slot="hotspot-3" 
+            data-position="-1.0129080117791056m 0.4496240760795325m -1.8568594526380542m" 
+            data-normal="-0.5230824020171959m 0.8378915599439669m 0.15595683529293122m" 
+            data-visibility-attribute="visible" 
+            data-title="Tyres" 
+            data-description="19-inch Diamond-cut Graphene Alloy wheels (airless, self-sealing, magnetic levitation).">
+                <div class="HotspotAnnotation"></div> 
+            </button>
+
+            <button class="Hotspot" 
+            slot="hotspot-4"
+            data-position="0.08555671925668895m 1.316307781640377m -1.9664828641073007m" 
+            data-normal="0.010006396645117367m 0.9927707036953178m -0.1196085361104477m" 
+            data-visibility-attribute="visible" 
+            data-title="Speed" 
+            data-description="100 km/r within 1.45 seconds. Governed Speed 350km/h">
                 <div class="HotspotAnnotation"></div>
             </button>
 
-            <!-- Hotspot 2: Front Bonut -->
             <button class="Hotspot" 
-                slot="hotspot-2" 
-                data-position="0.0m 0.5m 2.0m" 
-                data-normal="0m 0m 1m"
-                data-title="Front Bonut / Hood" 
-                data-description="Lightweight access panel for utility systems.">
-                <div class="HotspotAnnotation"></div>
-            </button>
-            
-            <!-- Hotspot 3: Back Right Tyre -->
-            <button class="Hotspot" 
-                slot="hotspot-3" 
-                data-position="-1.5m 0.4m -2.5m" 
-                data-normal="-1m 0m 0m"
-                data-title="Back Right Tyre Assembly" 
-                data-description="Rear wheel unit with magnetic suspension.">
+            slot="hotspot-5" 
+            data-position="-0.1819589114957214m 1.9816244770250495m 0.26479836268620427m" 
+            data-normal="-0.02959233215327415m 0.9942860855126491m -0.10256448719544028m" 
+            data-visibility-attribute="visible" 
+            data-title="WindowsElectro" 
+            data-description="Chromic Smart Glass serves as a full Augmented Reality HUD.">
                 <div class="HotspotAnnotation"></div>
             </button>
 
-             <!-- Hotspot 4: Interior / Dash -->
             <button class="Hotspot" 
-                slot="hotspot-4" 
-                data-position="0.0m 1.0m 0.3m" 
-                data-normal="0m 1m 0m"
-                data-title="Interior Dashboard" 
-                data-description="Central control unit and cockpit display.">
+            slot="hotspot-6" 
+            data-position="-0.026758096050141084m 0.9639880037994947m 2.5179298326685178m" 
+            data-normal="-0.0075662832498763054m -0.0010722259778223984m 0.9999708004183098m" 
+            data-visibility-attribute="visible" 
+            data-title="Mileage" 
+            data-description="Perpetual Range (Effectively Infinite)">
                 <div class="HotspotAnnotation"></div>
             </button>
 
-             <!-- Hotspot 5: Main Body/Chassis -->
             <button class="Hotspot" 
-                slot="hotspot-5" 
-                data-position="0.0m 0.3m 0.0m" 
-                data-normal="0m 1m 0m"
-                data-title="Main Body Chassis" 
-                data-description="The core structural platform.">
+            slot="hotspot-7" 
+            data-position="1.0140414410935739m 1.1741242531324094m 0.9727303427697893m" 
+            data-normal="0.9613706407267112m 0.26095995008274536m -0.0875579556723677m" 
+            data-visibility-attribute="visible" 
+            data-title="Engine Tri-Core" 
+            data-description="Quantum Fusion Drive (QFD): Zero-emission, silent power.">
                 <div class="HotspotAnnotation"></div>
             </button>
 
+            <button class="Hotspot" 
+            slot="hotspot-8"  
+            data-position="1.0140414789387980m 1.1741467829189032m 0.9727303427697893m" 
+            data-normal="0.9613706407267112m 0.26095995008274536m -0.0875579556723677m" 
+            data-visibility-attribute="visible" 
+            data-title="Key Technology" 
+            data-description="Omni-Pilot AI and Bio-Lock interior (adapts to occupant comfort).">
+                <div class="HotspotAnnotation"></div>
+            </button>
         </model-viewer>
         
-        <!-- Info Panel for Hotspot Details -->
         <div id="info-panel">
             <h3 id="panel-title"></h3>
             <p id="panel-content"></p>
             <button id="close-panel">Close</button>
         </div>
 
-        <!-- Explode/Assemble Control -->
         <div class="controls-panel">
-            <button id="explodeButton" class="control-button">Explode View</button>
-            <button id="arLaunchButton" class="control-button" style="background: #28a745;">Launch AR</button>
+            <button id="modeSwitch" class="mode-btn">Switch to Tyre Mode</button>
+
+            <div id="colorControls">
+                <h4>Body Color</h4>
+                <div class="button-list">
+                    <button class="color-selector" data-model="Pink futuristic real.glb" style="background:pink;"></button>
+                    <button class="color-selector" data-model="Blue futuristic car real size.glb" style="background:blue;"></button>
+                    <button class="color-selector" data-model="Green futuristic real.glb" style="background:green;"></button>
+                </div>
+            </div>
+
+            <div id="tyreControls" style="display:none;">
+                <h4>Tyres</h4>
+                <div class="button-list">
+                    <button class="tyre-btn" data-model="Blue futuristic car real size.glb">Style 1</button>
+                    <button class="tyre-btn" data-model="Blue futuristic tyre 2.glb">Style 2</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        const modelViewer = document.getElementById('exploded-model');
-        const explodeButton = document.getElementById('explodeButton');
-        const arLaunchButton = document.getElementById('arLaunchButton');
-        const infoPanel = document.getElementById('info-panel');
-        const panelTitle = document.getElementById('panel-title');
-        const panelContent = document.getElementById('panel-content');
-        const closeButton = document.getElementById('close-panel');
+        const modelViewer = document.getElementById('car-model');
         
-        let isExploded = false;
-        let animationsArray = []; // Array of all detected animation names
-        let maxDuration = 0; // Max duration calculated on load
+        // --- Customization Logic ---
+        const modeSwitch = document.getElementById('modeSwitch');
+        const colorControls = document.getElementById('colorControls');
+        const tyreControls = document.getElementById('tyreControls');
+        let currentMode = 'color';
 
-        // Manually pause the animation when it reaches the end/start to fix the looping issue.
-        const animationTimeListener = (event) => {
-            const currentTime = event.detail.currentTime;
-            
-            // Note: We use maxDuration for the comparison, calculated in the 'load' listener.
-            
-            // Check if we are reversing (assembling) and hit zero (or near zero)
-            if (modelViewer.timeScale < 0 && currentTime <= 0.05) { 
-                modelViewer.pause();
-                modelViewer.currentTime = 0; // Ensure it's exactly at the start
-                modelViewer.removeEventListener('time-update', animationTimeListener);
-            // Check if we are moving forward (exploding) and hit max duration (or near max)
-            } else if (modelViewer.timeScale > 0 && currentTime >= maxDuration - 0.05) { 
-                modelViewer.pause();
-                modelViewer.currentTime = maxDuration; // Ensure it's exactly at the end
-                modelViewer.removeEventListener('time-update', animationTimeListener);
+        // Switch modes
+        modeSwitch.addEventListener('click', () => {
+            if (currentMode === 'color') {
+                currentMode = 'tyre';
+                colorControls.style.display = 'none';
+                tyreControls.style.display = 'block';
+                modeSwitch.textContent = 'Switch to Color Mode';
+            } else {
+                currentMode = 'color';
+                colorControls.style.display = 'block';
+                tyreControls.style.display = 'none';
+                modeSwitch.textContent = 'Switch to Tyre Mode';
             }
-        };
-
-
-        // Function to handle the explosion/assembly animation
-        const toggleExplosion = () => {
-            if (animationsArray.length === 0 || maxDuration === 0) {
-                panelTitle.textContent = "Error";
-                panelContent.textContent = "Animation data is not ready or has zero duration. Please wait for the model to fully load.";
-                infoPanel.style.display = 'block';
-                return;
-            }
-
-            // Determine the direction and start/end position
-            const timeScaleDirection = isExploded ? -1 : 1;
-            // Use the calculated maxDuration as the ending point
-            const startTime = isExploded ? maxDuration : 0; 
-            
-            // FIX: Use the stable forEach loop for concurrent playback
-            animationsArray.forEach(animationName => {
-                // Set the specific animation name for the track
-                modelViewer.animationName = animationName;
-                
-                // Set the direction
-                modelViewer.timeScale = timeScaleDirection; 
-                
-                // Set the starting point
-                modelViewer.currentTime = startTime;
-
-                // Play the animation track, stopping exactly at the end/beginning
-                modelViewer.play({ repetitions: 1, clampWhenFinished: true });
-            });
-            
-            // Re-add the manual stop listener as a failsafe
-            modelViewer.addEventListener('time-update', animationTimeListener);
-
-            isExploded = !isExploded;
-            explodeButton.textContent = isExploded ? 'Assemble View' : 'Explode View';
-            
-            // Hotspot visibility toggle
-            document.querySelectorAll('.Hotspot').forEach(hotspot => {
-                hotspot.style.opacity = isExploded ? 1 : 0;
-            });
-            
-            infoPanel.style.display = 'none';
-        };
-
-        // --- Initial setup and animation string creation (CRITICAL) ---
-        document.addEventListener('DOMContentLoaded', () => {
-            modelViewer.addEventListener('load', () => {
-                animationsArray = modelViewer.availableAnimations;
-                
-                if (animationsArray.length > 0) {
-                    // Find the max duration among ALL tracks to set the precise stopping point
-                    maxDuration = animationsArray.reduce((max, name) => {
-                        // Temporarily set the animation name to get its specific duration
-                        modelViewer.animationName = name;
-                        return Math.max(max, modelViewer.duration);
-                    }, 0);
-                    
-                    // Reset animation name and time to prevent immediate playback
-                    modelViewer.animationName = null;
-                    modelViewer.currentTime = 0;
-                }
-            });
         });
 
-        // --- Other Event Listeners ---
+        // Handle button clicks for customization
+        function attachHandlers(selector) {
+            document.querySelectorAll(selector).forEach(button => {
+                button.addEventListener('click', () => {
+                    const modelFile = button.getAttribute('data-model');
+                    if (modelFile) {
+                        modelViewer.src = modelFile;
+                        modelViewer.setAttribute('scale', '1 1 1');
+                    }
+                });
+            });
+        }
+        attachHandlers('.color-selector');
+        attachHandlers('.tyre-btn');
         
-        explodeButton.addEventListener('click', toggleExplosion);
-        arLaunchButton.addEventListener('click', () => { modelViewer.activateAR(); });
+        // --- Hotspot and Animation Logic ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const infoPanel = document.getElementById('info-panel');
+            const panelTitle = document.getElementById('panel-title');
+            const panelContent = document.getElementById('panel-content');
+            const closeButton = document.getElementById('close-panel');
 
-        document.querySelectorAll('.Hotspot').forEach(hotspot => {
-            hotspot.addEventListener('click', (event) => {
-                event.preventDefault();
-                
-                if (isExploded) {
+            // Hotspot click handling to show the info panel
+            const hotspots = document.querySelectorAll('.Hotspot');
+            hotspots.forEach(hotspot => {
+                hotspot.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    
                     const title = hotspot.getAttribute('data-title');
                     const description = hotspot.getAttribute('data-description');
-    
+
                     panelTitle.textContent = title;
                     panelContent.textContent = description;
+
                     infoPanel.style.display = 'block';
-                } else {
-                    panelTitle.textContent = "Interactive Mode Locked";
-                    panelContent.textContent = "Please click 'Explode View' first to interact with individual components.";
-                    infoPanel.style.display = 'block';
-                    setTimeout(() => {
-                        if (panelTitle.textContent === "Interactive Mode Locked") {
-                            infoPanel.style.display = 'none';
-                        }
-                    }, 2000);
+                });
+            });
+            
+            // Close panel button
+            closeButton.addEventListener('click', () => {
+                infoPanel.style.display = 'none';
+            });
+            
+            // Door animation logic
+            const doorHotspot = modelViewer.querySelector('button[slot="hotspot-2"]');
+
+            // Check for animation availability after the model loads/changes
+            modelViewer.addEventListener('load', () => {
+                const availableAnimations = modelViewer.availableAnimations;
+                const hasDoorAnimation = availableAnimations.includes('doorsOpeningAction');
+
+                if (!hasDoorAnimation) {
+                    console.warn("Current model does NOT have 'doorsOpeningAction' animation. Door button might not work.");
                 }
             });
-        });
 
-        closeButton.addEventListener('click', () => {
-            infoPanel.style.display = 'none';
+            // Attach click listener for the door hotspot
+            if (doorHotspot) {
+                doorHotspot.addEventListener('click', () => {
+                    const availableAnimations = modelViewer.availableAnimations;
+                    if (availableAnimations.includes('doorsOpeningAction')) {
+                        modelViewer.currentTime = 0;
+                        modelViewer.animationName = 'doorsOpeningAction';
+                        modelViewer.play();
+
+                        const durationInSeconds = modelViewer.duration;
+
+                        if (durationInSeconds > 0) {
+                            setTimeout(() => {
+                                modelViewer.pause();
+                            }, durationInSeconds * 1000);
+                        }
+                    } else {
+                        alert("Door opening animation not available for this model. Ensure 'doorsOpeningAction' is in your current GLB file.");
+                        console.warn("Attempted to play 'doorsOpeningAction' but it's not available.");
+                    }
+                });
+            }
         });
     </script>
 </body>
