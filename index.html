@@ -3,360 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Model Hotspot Explorer</title>
-    <!-- Load Tailwind CSS for utility classes like rounded corners and simple layout -->
+    <title>Model Viewer Hotspot Explorer</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom CSS for the 3D container and hotspots */
+        /* Custom styles for the futuristic pink aesthetic */
         body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e; /* Dark Purple/Blue */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
             margin: 0;
             overflow: hidden;
-            font-family: 'Inter', sans-serif;
-            background-color: #1a1a2e; /* Dark futuristic background */
-            color: #fff;
         }
-        #scene-container {
-            width: 100vw;
-            height: 100vh;
-            position: relative; /* Needed for positioning 2D overlays */
+
+        /* Model Viewer specific styling */
+        model-viewer {
+            width: 100%;
+            height: 80vh;
+            max-width: 1200px;
+            --poster-color: #1a1a2e;
+            --controls-color: #ff007f;
+            --controls-height: 40px;
         }
-        canvas {
-            display: block;
-        }
-        .hotspot {
-            position: absolute;
+
+        /* Hotspot Button Styling */
+        .hotspot-button {
+            background-color: #ff007f; /* Fuchsia */
+            border: 2px solid white;
+            border-radius: 50%;
             width: 20px;
             height: 20px;
-            background-color: #ff007f; /* Pink/Fuchsia color */
-            border: 3px solid #ffffff;
-            border-radius: 50%;
+            padding: 0;
             cursor: pointer;
-            z-index: 10;
-            opacity: 0.8;
-            transition: all 0.1s ease-out;
-            transform: translate(-50%, -50%); /* Center the hotspot element */
+            box-shadow: 0 0 10px #ff007f;
+            transition: all 0.2s;
+            visibility: hidden; /* Controlled by JS */
         }
-        .hotspot:hover {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1.2);
-            box-shadow: 0 0 15px #ff007f;
+
+        .hotspot-button:hover {
+            box-shadow: 0 0 20px #ff007f, 0 0 5px white;
+            transform: scale(1.2);
         }
-        /* Info Box Styles */
-        .info-box {
+
+        /* Info Modal Styling */
+        #info-modal {
             position: absolute;
-            background-color: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 8px;
-            min-width: 150px;
-            max-width: 250px;
-            border: 1px solid #ff007f;
-            pointer-events: none; /* Allows clicks to pass through to the canvas */
-            transform: translate(-50%, -110%); /* Position above the hotspot */
-            transition: opacity 0.2s ease-in-out;
-            z-index: 20;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            font-size: 0.9rem;
-            line-height: 1.3;
-        }
-        .info-box::before {
-            content: '';
-            position: absolute;
-            bottom: -8px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid #ff007f; /* Triangle pointer */
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            background-color: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ff007f;
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(255, 0, 127, 0.5);
+            display: none; /* Initially hidden */
+            flex-direction: column;
+        }
+
+        .modal-title {
+            color: #fce4ec;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
     </style>
+    <!-- Load Model Viewer Library -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 </head>
 <body>
 
-    <div id="scene-container">
-        <!-- 3D Scene will render here -->
-
-        <!-- Control Panel -->
-        <div class="absolute top-4 left-1/2 transform -translate-x-1/2 p-4 z-30 flex space-x-4 bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-2xl">
-            <button id="switchModelBtn" class="px-6 py-3 bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold rounded-lg shadow-lg transition duration-200">
-                Switch to Exploded View
-            </button>
-        </div>
-
-        <!-- Hotspot Container (2D overlay for HTML elements) -->
-        <div id="hotspot-overlay">
-            <!-- Hotspots will be dynamically added here by JavaScript -->
-        </div>
-
+    <!-- Control Button -->
+    <div class="mb-4">
+        <button id="switchModelBtn" class="px-8 py-3 bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold rounded-lg shadow-lg transition duration-300 transform hover:scale-105">
+            Switch to Exploded View
+        </button>
     </div>
 
-    <!-- Three.js Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Model Viewer Component -->
+    <model-viewer 
+        id="productViewer"
+        src="pink futuristic real.glb" 
+        alt="Pink Futuristic Product"
+        camera-controls 
+        touch-action="pan-y" 
+        shadow-intensity="1"
+        exposure="1.5"
+        environment-image="neutral"
+        ar-modes="webxr scene-viewer quick-look"
+    >
+        <!-- Hotspot 1: Power Core -->
+        <!-- *** ADJUST data-position TO MATCH YOUR MODEL *** -->
+        <button 
+            slot="hotspot-1" 
+            class="hotspot-button" 
+            data-position="2 5 0" 
+            data-normal="0 1 0"
+            data-info-title="Power Core"
+            data-info-body="This proprietary pink crystal fuels the entire device, providing sustainable, high-density energy."
+            onclick="showInfo('hotspot-1')"
+        ></button>
 
-    <script type="module">
-        // Global variables for Three.js
-        let scene, camera, renderer, controls;
-        let loader;
-        let currentModel = null;
-        let isExplodedView = false;
+        <!-- Hotspot 2: Thermal Regulator -->
+        <!-- *** ADJUST data-position TO MATCH YOUR MODEL *** -->
+        <button 
+            slot="hotspot-2" 
+            class="hotspot-button" 
+            data-position="-4 0 -3" 
+            data-normal="-1 0 0"
+            data-info-title="Thermal Regulator"
+            data-info-body="Maintains optimal operating temperature using an advanced liquid cooling system for zero thermal throttling."
+            onclick="showInfo('hotspot-2')"
+        ></button>
+
+        <!-- Hotspot 3: Holographic Projector -->
+        <!-- *** ADJUST data-position TO MATCH YOUR MODEL *** -->
+        <button 
+            slot="hotspot-3" 
+            class="hotspot-button" 
+            data-position="0 -3 4" 
+            data-normal="0 0 1"
+            data-info-title="Holographic Projector"
+            data-info-body="Generates the 3D user interface display. Utilizes ultra-low latency photon emitters for crisp visuals."
+            onclick="showInfo('hotspot-3')"
+        ></button>
+
+    </model-viewer>
+
+    <!-- Custom Info Modal -->
+    <div id="info-modal">
+        <div class="modal-title" id="modal-title"></div>
+        <div id="modal-body" class="mb-4 text-gray-300"></div>
+        <button onclick="document.getElementById('info-modal').style.display='none';" 
+                class="px-4 py-2 bg-pink-700 hover:bg-pink-800 rounded-md font-semibold transition">
+            Close
+        </button>
+    </div>
+    
+    <script>
+        const viewer = document.getElementById('productViewer');
+        const switchModelBtn = document.getElementById('switchModelBtn');
+        const hotspotButtons = document.querySelectorAll('.hotspot-button');
         
-        // --- IMPORTANT: Update these URLs with your actual GLB file paths ---
         const MODEL_URLS = {
             REAL: 'pink futuristic real.glb',
             EXPLODED: 'Exploaded pink.glb'
         };
-
-        // Define Hotspot Data (3D positions relative to the EXPLODED model's origin)
-        // *** ADJUST THESE (x, y, z) POSITIONS TO MATCH YOUR EXPLODED MODEL PARTS ***
-        const hotspotData = [
-            { 
-                position: new THREE.Vector3(2, 5, 0), // Example: Top component
-                info: "Power Core: This proprietary pink crystal fuels the entire device, providing sustainable energy.",
-                id: 'hotspot-1'
-            },
-            { 
-                position: new THREE.Vector3(-4, 0, -3), // Example: Left-back panel
-                info: "Thermal Regulator: Maintains optimal operating temperature using an advanced liquid nitrogen system.",
-                id: 'hotspot-2'
-            },
-            { 
-                position: new THREE.Vector3(0, -3, 4), // Example: Front base part
-                info: "Holographic Projector: Generates the interface display. Uses ultra-low latency photon emitters.",
-                id: 'hotspot-3'
-            }
-        ];
-
-        // Placeholder for the hotspot HTML elements
-        let hotspotElements = [];
-        const hotspotOverlay = document.getElementById('hotspot-overlay');
-        const switchModelBtn = document.getElementById('switchModelBtn');
-
-        /**
-         * Initializes the Three.js scene, camera, and renderer.
-         */
-        function init() {
-            const container = document.getElementById('scene-container');
-
-            // Scene setup
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x1a1a2e); // Match body background
-
-            // Camera setup
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 5, 10);
-
-            // Renderer setup
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            container.appendChild(renderer.domElement);
-
-            // Lighting
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(ambientLight);
-            
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-            directionalLight.position.set(5, 10, 5);
-            scene.add(directionalLight);
-
-            // Controls (allowing user to rotate the model)
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true; // smooth rotation
-            controls.dampingFactor = 0.05;
-            controls.screenSpacePanning = false;
-            controls.minDistance = 5;
-            controls.maxDistance = 25;
-
-            // GLTF Loader initialization
-            loader = new THREE.GLTFLoader();
-
-            // Create initial hotspot elements
-            createHotspotsHTML();
-            
-            // Load the initial model (Real)
-            loadModel(MODEL_URLS.REAL);
-
-            // Event listeners
-            window.addEventListener('resize', onWindowResize);
-            switchModelBtn.addEventListener('click', toggleModelView);
-        }
-
-        /**
-         * Converts 3D position to 2D screen coordinates and updates hotspot element position.
-         */
-        function updateHotspotPositions() {
-            if (!isExplodedView) return;
-
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-
-            hotspotData.forEach((hotspot, index) => {
-                const vector = hotspot.position.clone();
-                
-                // Project 3D position to 2D screen space
-                vector.project(camera);
-
-                // Calculate screen coordinates (0 to width, 0 to height)
-                const x = (vector.x * 0.5 + 0.5) * width;
-                const y = (-vector.y * 0.5 + 0.5) * height;
-
-                const element = hotspotElements[index];
-
-                // Check if the point is in front of the camera (vector.z < 1) and within the viewport
-                if (vector.z < 1) {
-                    element.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-                    element.style.display = 'block';
-                } else {
-                    element.style.display = 'none'; // Hide if behind the camera
-                }
-            });
-        }
         
-        /**
-         * Creates the 2D HTML elements for the hotspots and their info boxes.
-         */
-        function createHotspotsHTML() {
-            hotspotData.forEach((data) => {
-                // 1. Hotspot Dot Element
-                const dot = document.createElement('div');
-                dot.classList.add('hotspot');
-                dot.id = data.id;
-                dot.style.display = 'none'; // Initially hidden
-
-                // 2. Info Box Element (Hidden by default)
-                const info = document.createElement('div');
-                info.classList.add('info-box', 'hidden');
-                // The info box content is split by the colon (e.g., "Title: Description")
-                const title = data.info.split(':')[0];
-                const description = data.info.split(':')[1] ? data.info.split(':')[1].trim() : '';
-                info.innerHTML = `<p class="font-semibold text-fuchsia-400">${title}</p><p>${description}</p>`;
-                
-                // Add click listener to show/hide info box
-                dot.addEventListener('click', (event) => {
-                    event.stopPropagation(); // Prevent the click from affecting the controls
-                    
-                    // Hide all other info boxes
-                    document.querySelectorAll('.info-box').forEach(box => {
-                        if (box !== info) box.classList.add('hidden');
-                    });
-                    
-                    // Toggle visibility of the current info box
-                    info.classList.toggle('hidden');
-                });
-
-                // Attach info box to the dot for easier positioning logic
-                dot.appendChild(info);
-                hotspotOverlay.appendChild(dot);
-                hotspotElements.push(dot);
-            });
-
-            // Add an event listener to the whole container to close info boxes when clicking elsewhere
-            hotspotOverlay.addEventListener('click', () => {
-                 document.querySelectorAll('.info-box').forEach(box => box.classList.add('hidden'));
-            });
-        }
+        let isExplodedView = false;
 
         /**
-         * Loads a GLB model and replaces the current one in the scene.
-         * @param {string} url The path to the GLB file.
+         * Shows the custom information modal with content from the clicked hotspot.
+         * @param {string} slotName - The slot ID of the clicked hotspot.
          */
-        function loadModel(url) {
-            // Show a loading indicator
-            switchModelBtn.disabled = true;
-            switchModelBtn.textContent = 'Loading...';
-
-            loader.load(
-                url,
-                (gltf) => {
-                    // Remove existing model if present
-                    if (currentModel) {
-                        scene.remove(currentModel);
-                    }
-
-                    currentModel = gltf.scene;
-                    scene.add(currentModel);
-
-                    // Center the model in the scene
-                    const bbox = new THREE.Box3().setFromObject(currentModel);
-                    const center = new THREE.Vector3();
-                    bbox.getCenter(center);
-                    currentModel.position.sub(center); 
-                    
-                    // Reset controls and camera position for a fresh view
-                    controls.reset();
-                    camera.position.set(0, 5, 10);
-                },
-                (xhr) => {
-                    // Progress updates (optional)
-                    console.log(`Model load progress: ${(xhr.loaded / xhr.total * 100).toFixed(0)}%`);
-                },
-                (error) => {
-                    console.error('An error occurred loading the model. Check file path/URL:', error);
-                    // Instead of alert(), we can update the button or display a message in the center.
-                    switchModelBtn.textContent = 'Load Failed (Check Console)';
-                }
-            ).then(() => {
-                // Restore button state after model is loaded
-                switchModelBtn.disabled = false;
-                switchModelBtn.textContent = isExplodedView ? 'Switch to Real View' : 'Switch to Exploded View';
-            });
-        }
-
-        /**
-         * Toggles between the Real and Exploded model views.
-         */
-        function toggleModelView() {
-            // Hide all info boxes and hotspots when switching
-            document.querySelectorAll('.info-box').forEach(box => box.classList.add('hidden'));
-
-            isExplodedView = !isExplodedView;
-
-            if (isExplodedView) {
-                loadModel(MODEL_URLS.EXPLODED);
-            } else {
-                loadModel(MODEL_URLS.REAL);
+        window.showInfo = (slotName) => {
+            const hotspot = document.querySelector(`[slot="${slotName}"]`);
+            const modal = document.getElementById('info-modal');
+            
+            if (hotspot) {
+                document.getElementById('modal-title').textContent = hotspot.getAttribute('data-info-title');
+                document.getElementById('modal-body').textContent = hotspot.getAttribute('data-info-body');
+                modal.style.display = 'flex';
             }
-
-            // Toggle visibility of hotspot HTML elements
-            // Note: The visibility logic is redundant here but useful for immediate hiding/showing.
-            hotspotElements.forEach(el => el.style.display = isExplodedView ? 'block' : 'none');
-        }
-
-        /**
-         * Handles window resize event to maintain aspect ratio and canvas size.
-         */
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        /**
-         * Main animation loop.
-         */
-        function animate() {
-            requestAnimationFrame(animate);
-
-            controls.update(); // required if controls.enableDamping is set to true
-
-            if (isExplodedView) {
-                updateHotspotPositions(); // Only update hotspots when in exploded view
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        // Initialize and start the application when the window loads
-        window.onload = function () {
-            init();
-            animate();
         };
+
+        /**
+         * Updates the visibility of the hotspots based on the current view state.
+         * Hotspots should only be visible in the exploded view.
+         */
+        function updateHotspotVisibility(show) {
+            hotspotButtons.forEach(button => {
+                // Using 'visibility' instead of 'display' keeps the element in the DOM
+                // so Model Viewer can continue calculating its 2D position.
+                button.style.visibility = show ? 'visible' : 'hidden';
+            });
+            // Hide the info modal when switching views
+            document.getElementById('info-modal').style.display = 'none';
+        }
+
+        /**
+         * Switches the model viewer source and updates the UI state.
+         */
+        switchModelBtn.addEventListener('click', () => {
+            isExplodedView = !isExplodedView;
+            
+            if (isExplodedView) {
+                viewer.src = MODEL_URLS.EXPLODED;
+                switchModelBtn.textContent = 'Switch to Real View';
+                // Hotspots become visible when the exploded model is loaded
+                updateHotspotVisibility(true);
+            } else {
+                viewer.src = MODEL_URLS.REAL;
+                switchModelBtn.textContent = 'Switch to Exploded View';
+                // Hide hotspots when returning to the assembled view
+                updateHotspotVisibility(false);
+            }
+
+            // Optional: Reset camera view when model changes
+            viewer.cameraOrbit = '0deg 75deg 10m';
+        });
+
+        // Initial setup: Ensure hotspots are hidden when the page loads with the REAL model
+        window.addEventListener('load', () => {
+            updateHotspotVisibility(false);
+        });
 
     </script>
 
 </body>
 </html>
+
